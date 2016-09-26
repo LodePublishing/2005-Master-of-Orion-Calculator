@@ -1,6 +1,6 @@
 // namen fuer produkte noch rein
 
-#include "data.h"
+#include "01\data.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
@@ -341,24 +341,26 @@ mmmh...
 unsigned char player::CanResearch(unsigned char what)
 {
 	if(tech[what]==1) return 0;
-
-
-	switch(what)
-	{
-
-//		...
-	}
-
-
-
-
+	if(Area[ScienceArea[what].Field][ScienceArea[what].Progress]==1) return 0; //Feld schon erforscht
+	if(ScienceArea[what].Progress>0)
+		if(Area[ScienceArea[what].Field][ScienceArea[what].Progress-1]==0) return 0; //Vorgaenger-Feld noch nicht erforscht?
 	switch(what)
 	{
 		case T_POLLUTION_PROCESSOR:
 		case T_ATMOSPHERE_RENEWER:
-		case T_NANO_DISASSEMBLER:if(picks[P_TOLERANT]==1) return 0;break;
+		case T_NANO_DISASSEMBLER:
+		case T_CORE_WASTE_DUMP:if(picks[P_TOLERANT]==1) return 0;break;
 		case T_HYDROPONIC_FARM:
-		case T_SOIL_ENRICHMENT:if(picks[P_LITHOVORE]==1) return 0;break;
+		case T_SOIL_ENRICHMENT:
+		case T_SUBTERRAN_FARMS:
+		case T_FOOD_REPLICATOR:if(picks[P_LITHOVORE]==1) return 0;break;
+		case T_CONFEDERATION:if(picks[P_FEUDALISM]==0) return 0;break;
+		case T_IMPERIUM:if(picks[P_DICTATORSHIP]==0) return 0;break;
+		case T_FEDERATION:if(picks[P_DEMOCRACY]==0) return 0;break;
+		case T_GALACTIC_UNIFICATION:if(picks[P_UNIFICATION]==0) return 0;break;
+		case T_HOLO_SIMULATOR:
+		case T_VIRTUAL_REALITY_NETWORK:
+		case T_PLEASURE_DOME:if(picks[P_UNIFICATION]==1) return 0;break;
 	};
 	return 1;
 }
@@ -789,7 +791,7 @@ points=0;
 		{
 			Fitness+=planet[i].Population*(planet[i].Settlement==2)*10;
 //			for(j=0;j<MAX_BUILDINGS;j++)
-//				Fitness+=planet[i].Building[j]==1;
+				Fitness+=planet[i].Building[j]==1;
 //			Fitness+=bcs;
 		}
 //		for(i=0;i<MAX_ORDERS;i++)
@@ -2339,17 +2341,54 @@ unsigned char Planets::CanBuild(unsigned char item)
 	{
 		case B_COLONY_BASE:b=1;for(a=0;a<5;a++) b&=((System[system].Object[a]->Settlement>0)||(System[system].Object[a]->Type<3));if(b==1) return 0;break;
 		case B_AUTOMATED_FACTORIES:if(P.tech[T_AUTOMATED_FACTORIES]==0) return 0;break;
+		case B_MISSILE_BASE:if(P.tech[T_MISSILE_BASE]==0) return 0;break;
 		case B_SPACE_PORT:if(P.tech[T_SPACE_PORT]==0) return 0;break;
+		case B_ARMOR_BARRACKS:if(P.tech[T_ARMOR_BARRACKS]==0) return 0;break;
+		case B_FIGHTER_GARRISON:if(P.tech[T_FIGHTER_GARRISONS]==0) return 0;break;
 		case B_ROBO_MINE_PLANT:if(P.tech[T_ROBO_MINE_PLANT]==0) return 0;break;
+		case B_BATTLE_STATION:if(P.tech[T_BATTLE_STATION]==0) return 0;break;
+		case B_GROUND_BATTERIES:if(P.tech[T_GROUND_BATTERIES]==0) return 0;break;
+		case B_RECYCLOTRON:if(P.tech[T_RECYCLOTRON]==0) return 0;break;
+		case B_ARTIFICIAL_PLANET_CONSTRUCTION:if(P.tech[T_ARTIFICIAL_PLANET_CONSTRUCTION]==0) return 0;break;// nur wenn gas/asteroid da is
+		case B_ROBOTIC_FACTORY:if(P.tech[T_ROBOTIC_FACTORY]==0) return 0;break;
+		case B_DEEP_CORE_MINE:if(P.tech[T_DEEP_CORE_MINE]==0) return 0;break;
+		case B_CORE_WASTE_DUMP:if(P.tech[T_CORE_WASTE_DUMP]==0) return 0;break;
+		case B_STAR_FORTRESS:if(P.tech[T_STAR_FORTRESS]==0) return 0;break;
+		case B_ARTEMIS_SYSTEM_NETWORK:if(P.tech[T_ARTEMIS_SYSTEM_NETWORK]==0) return 0;break; // nur eins im system
 		case B_COLONY_SHIP:if(P.tech[T_COLD_FUSION]==0) return 0;break;
+//		case B_FREIGHTERS:if(P.tech[T_FREIGHTERS]==0) return 0;break; ?
+//		case B_OUTPOST_SHIP:if(P.tech[T_OUTPOST_SHIP]==0) return 0;break; ?
+//		case B_TRANSPORT:if(P.tech[T_TRANSPORT]==0) return 0;break; ?
+		case B_FOOD_REPLICATOR:if(P.tech[T_FOOD_REPLICATOR]==0) return 0;break;
 		case B_POLLUTION_PROCESSOR:if(P.tech[T_POLLUTION_PROCESSOR]==0) return 0;break;
 		case B_ATMOSPHERE_RENEWER:if(P.tech[T_ATMOSPHERE_RENEWER]==0) return 0;break;
+		case B_SPACE_ACADEMY:if(P.tech[T_SPACE_ACADEMY]==0) return 0;break;
+		case B_ALIEN_CONTROL_CENTER:if(P.tech[T_ALIEN_CONTROL_CENTER]==0) return 0;break;
+		case B_STOCK_EXCHANGE:if(P.tech[T_STOCK_EXCHANGE]==0) return 0;break;
+		case B_ASTRO_UNIVERSITY:if(P.tech[T_ASTRO_UNIVERSITY]==0) return 0;break;
 		case B_RESEARCH_LAB:if(P.tech[T_RESEARCH_LAB]==0) return 0;break;
 		case B_PLANETARY_SUPERCOMPUTER:if(P.tech[T_PLANETARY_SUPERCOMPUTER]==0) return 0;break;
+		case B_HOLO_SIMULATOR:if(P.tech[T_HOLO_SIMULATOR]==0) return 0;break;
+		case B_AUTOLAB:if(P.tech[T_AUTOLAB]==0) return 0;break;
+		case B_ANDROID_FARMER:if(P.tech[T_ANDROID_FARMERS]==0) return 0;break;
+		case B_ANDROID_WORKER:if(P.tech[T_ANDROID_WORKERS]==0) return 0;break;
+		case B_ANDROID_SCIENTIST:if(P.tech[T_ANDROID_SCIENTISTS]==0) return 0;break;
+		case B_GALACTIC_CYBERNETWORK:if(P.tech[T_GALACTIC_CYBERNETWORK]==0) return 0;break;
+		case B_PLEASURE_DOME:if(P.tech[T_PLEASURE_DOME]==0) return 0;break; //? unific?
 		case B_HYDROPONIC_FARM:if(P.tech[T_HYDROPONIC_FARM]==0) return 0;break;
 		case B_BIOSPHERES:if(P.tech[T_BIOSPHERES]==0) return 0;break;
 		case B_CLONING_CENTER:if(P.tech[T_CLONING_CENTER]==0) return 0;break;
 		case B_SOIL_ENRICHMENT:if(P.tech[T_SOIL_ENRICHMENT]==0) return 0;break; //?
+		case B_TERRAFORMING:if(P.tech[T_TERRAFORMING]==0) return 0;break; //?
+		case B_SUBTERRAN_FARMS:if(P.tech[T_SUBTERRAN_FARMS]==0) return 0;break; //?
+		case B_WEATHER_CONTROL_SYSTEM:if(P.tech[T_WEATHER_CONTROL_SYSTEM]==0) return 0;break; //?
+		case B_GAIA_TRANSFORMATION:if(P.tech[T_GAIA_TRANSFORMATION]==0) return 0;break; //?
+		case B_DIMENSION_PORTAL:if(P.tech[T_DIMENSION_PORTAL]==0) return 0;break; //?
+		case B_STELLAR_CONVERTER:if(P.tech[T_STELLAR_CONVERTER]==0) return 0;break;
+		case B_PLANETARY_RADIATION_SHIELD:if(P.tech[T_PLANETARY_RADIATION_SHIELD]==0) return 0;break; //?
+		case B_WARP_FIELD_DISSIPATOR:if(P.tech[T_WARP_DISSIPATOR]==0) return 0;break; //?
+		case B_PLANETARY_FLUX_SHIELD:if(P.tech[T_PLANETARY_FLUX_SHIELD]==0) return 0;break; //?
+		case B_PLANETARY_BARRIER_SHIELD:if(P.tech[T_PLANETARY_BARRIER_SHIELD]==0) return 0;break; //?
 		case B_GRAVITY_GENERATOR:if((P.tech[T_PLANETARY_GRAVITATION_GENERATION]==0)|| ( (Gravitation==0)&&(P.picks[P_LOWG]==1) ) || ( (Gravitation==1) && ( P.picks[P_LOWG]==0) ) || ((Gravitation==2)&&(P.picks[P_HIGHG]==1))) return 0;break;
 //		case B_GOVERNMENT_CENTER:if(P.NoGoverment==0) return 0;break;
 	};
