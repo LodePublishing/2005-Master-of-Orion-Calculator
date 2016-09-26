@@ -1,3 +1,6 @@
+// namen fuer produkte noch rein
+
+#include "data.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
@@ -5,1116 +8,33 @@
 #include <fstream.h>
 #include <time.h>
 #include <malloc.h>
+#include <math.h>
+
 
 // Science Queue als eigenes Chromosom
 //#define INHABITANTS 10
 //#define ANDROIDS 11
-#define MAX_SYSTEMS 25
-#define MAX_PLANETS MAX_SYSTEMS*5
-#define MAX_SHIPS 1000
-#define MAX_X 20
-#define MAX_Y 15 // tiny galaxy
+
+
+unsigned short Mutations,Mut_Rate;
 
 struct trans
 {
-	unsigned char woher,wer,ok,time;
-} Transport[10];
-
-struct receiv
-{
-	unsigned char wohin,woher;
-} Receive[10];
-
-unsigned char TransportCounter,ReceiveCounter;
-
-struct name
-{
-	char Name[35];
-};
-
-const name Orders[256]=
-{
-	{"Switch 1 Farmer to Industry"},
-	{"Switch 1 Farmer to Science"},
-	{"Switch 1 Worker to Farming"},
-	{"Switch 1 Worker to Science"},
-	{"Switch 1 Scientist to Farming"},
-	{"Switch 1 Scientist to Industry"},
-	{"Switch 3 Farmer to Industry"},
-	{"Switch 3 Farmer to Science"},
-	{"Switch 3 Worker to Farming"},
-	{"Switch 3 Worker to Science"},
-	{"Switch 3 Scientist to Farming"},
-	{"Switch 3 Scientist to Industry"},
-	{"Send 1 Farmer to ..."},
-	{"Send 1 Worker to ..."},
-	{"Send 1 Scientist to ..."},
-	{"Send 3 Farmers to ..."},
-	{"Send 3 Workers to ..."},
-	{"Send 3 Scientists to ..."},
-	{"Receive people from Queue 1"},
-	{"Receive people from Queue 2"},
-	{"Receive people from Queue 3"},
-	{"Receive people from Queue 4"},
-	{"Receive people from Queue 5"},
-	{"Send ship 1 to ..."},
-	{"Send ship 2 to ..."},
-	{"Send ship 3 to ..."},
-	{"Send ship 4 to ..."},
-	{"Send ship 5 to ..."},
-	{"Buy project ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Replace project with ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Queue Building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{"Sell building ..."},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""},
-	{""}
-};
-
-const unsigned char mins[5]={1,2,3,5,8};
-const unsigned char robominer[5]={5,8,10,15,20};
-const unsigned char food[13]={0,0,0,3,2,2,1,2,1,1,0,0,0};
-const unsigned char farming[4]={3,4,6,8};
-
-const unsigned char growth[30][30]= //pop/size
-{ 
-	{0,  0,	0,	0,	0,	0,	0,	0,	0,	0,	0,   0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0   },
-	{0,  34	,36	,38	,40	,40	,41	,41	,42	,42	,42	,42	,42	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	,43	},
-	{0,  0	,36	,44	,48	,51	,53	,54	,55	,56	,57	,57	,58	,58	,58	,59	,59	,59	,60	,60	,60	,60	,60	,60	,60	,60	,60	,60	,60	,61	},
-	{0,  0	,0	,38	,48	,54	,58	,61	,63	,64	,66	,67	,67	,68	,69	,69	,70	,70	,71	,71	,71	,71	,72	,72	,72	,72	,73	,73	,73	,73	},
-	{0,  0	,0	,0	,40	,51	,58	,63	,66	,69	,71	,73	,74	,75	,76	,77	,78	,78	,79	,80	,80	,80	,81	,81	,82	,82	,82	,82	,83	,83	},
-	{0,  0	,0	,0	,0	,40	,53	,61	,66	,70	,74	,76	,78	,80	,81	,82	,84	,84	,85	,86	,87	,87	,88	,88	,89	,89	,90	,90	,91	,91	},
-	{0,  0	,0	,0	,0	,0	,41	,54	,63	,69	,74	,77	,80	,82	,84	,86	,88	,89	,90	,91	,92	,93	,94	,94	,95	,96	,97	,97	,97	,97	},
-	{0,  0	,0	,0	,0	,0	,0	,41	,55	,64	,71	,76	,80	,83	,86	,88	,90	,92	,93	,95	,96	,97	,98	,99,100,101,102,102,102,103	},
-	{0,  0	,0	,0	,0	,0	,0	,0	,42	,56	,66	,73	,78	,82	,86	,89	,92	,94	,95	,97	,99	,100,102,103,103,105,106,106,107,108},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,42	,57	,67	,74	,80	,84	,88	,92	,94	,97	,99	,101,103,104,106,107,108,109,110,111,112},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,42	,57	,67	,75	,81	,86	,90	,94	,97	,100,102,104,106,108,110,110,112,113,114,115},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,42	,58	,68	,76	,82	,88	,92	,95	,99	,102,104,107,109,111,112,113,115,116,118},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,42	,58	,69	,77	,84	,89	,93	,97	,101,104,107,109,112,113,115,117,118,120},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,58	,69	,78	,84	,90	,95	,99	,103,106,109,112,114,116,118,119,121},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,59	,70	,78	,85	,91	,96	,100,104,108,111,113,116,118,120,122},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,59	,70	,79	,86	,92	,97	,102,106,110,112,115,118,120,122},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,59	,71	,80	,87	,93	,98	,103,107,110,113,117,119,122},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,71	,80	,87	,94	,99	,103,108,112,115,118,121},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,71	,80	,88	,94	,100,105,109,113,116,120},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,71	,81	,88	,95	,101,106,110,114,118},
-	{0,  0  ,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,72	,81	,89	,96	,102,106,111,115},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,72	,82	,89	,97	,102,107,112},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,72	,82	,90	,97,102	,108},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,72	,82	,90	,97,103},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,73	,82	,91	,97},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,73	,83	,91},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,73	,83},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,60	,73},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43	,61},
-	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43}
-};
-
-unsigned char Area[8][15]; // Zeiger auf die einzelnen Areale
-
-struct str
-{
-	unsigned char Field,Progress;
-};
-
-const str ScienceArea[200]=
-{
-	{0,0},{0,0},{0,0},
-	{0,1},{0,1},{0,1},
-	{0,2},{0,2},{0,2},
-	{0,3},{0,3},{0,3},
-	{0,4},{0,4},{0,4},
-	{0,5},{0,5},{0,5},
-	{0,6},{0,6},{0,6},
-	{0,7},{0,7},{0,7},
-	{0,8},{0,8},
-	{0,9},{0,9},
-	{0,10},{0,10},{0,10},
-	{0,11},{0,11},
-
-	{1,0},
-	{1,1},
-	{1,2},{1,2},{1,2},
-	{1,3},{1,3},{1,3},
-	{1,4},{1,4},{1,4},
-	{1,5},{1,5},
-	{1,6},{1,6},{1,6},
-	{1,7},{1,7},{1,7},
-	{1,8},{1,8},{1,8},
-
-	{2,0},
-	{2,1},{2,1},
-	{2,2},{2,2},
-	{2,3},{2,3},{2,3},
-	{2,4},{2,4},{2,4},
-	{2,5},{2,5},{2,5},
-	{2,6},{2,6},
-
-	{3,0},
-	{3,1},{3,1},
-	{3,2},
-	{3,3},
-	{3,4},{3,4},{3,4},{3,4},
-	{3,5},
-	
-	{4,0},
-	{4,1},{4,1},{4,1},
-	{4,2},{4,2},{4,2},
-	{4,3},{4,3},{4,3},
-	{4,4},{4,4},{4,4},
-	{4,5},{4,5},{4,5},
-	{4,6},{4,6},{4,6},
-	{4,7},{4,7},
-	{4,8},{4,8},{4,8},
-
-	
-	{5,0},{5,0},
-	{5,1},{5,1},{5,1},
-	{5,2},{5,2},
-	{5,3},{5,3},{5,3},
-	{5,4},
-	{5,5},{5,5},
-	{5,6},{5,6},
-	{5,7},{5,7},
-	{5,8},{5,8},{5,8},
-
-	{6,0},
-	{6,1},{6,1},
-	{6,2},{6,2},{6,2},
-	{6,3},{6,3},
-	{6,4},{6,4},{6,4},
-	{6,5},{6,5},
-	{6,6},{6,6},{6,6},
-	{6,7},{6,7},{6,7},
-	{6,8},{6,8},
-	{6,9},{6,9},{6,9},
-	{6,10},{6,10},{6,10}
-};
-
-#define T_PHYSICS 122
-
-#define T_FUSION_BEAM 123
-#define T_FUSION_RIFLE 124
-
-#define T_TACHYON_COMMUNICATION 125
-#define T_TACHYON_SCANNER 126
-#define T_BATTLE_SCANNER 127
-
-#define T_NEUTRON_BLASTER 128
-#define T_NEUTRON_SCANNER 129
-
-#define T_TRACTOR_BEAM 130
-#define T_GRAVITON_BEAM 131
-#define T_PLANETARY_GRAVITATION_GENERATION 132
-
-#define T_SUBSPACE_COMMUNICATION 133
-#define T_JUMP_GATE 134
-
-#define T_PHASOR 135
-#define T_PHASOR_RIFLE 136
-#define T_MULTI_PHASE_SHIELD 137
-
-#define T_PLASMA_CANNON 138
-#define T_PLASMA_RIFLE 139
-#define T_PLASMA_WEB 140
-
-#define T_DISRUPTOR_CANNON 141
-#define T_DIMENSION_PORTAL 142
-
-#define T_HYPERSPACE_COMMUNICATION 143
-#define T_SENSORS 144
-#define T_MAULER_DEVICE 145
-
-#define T_TIME_WARP_FACILITY 146
-#define T_STELLAR_CONVERTER 147
-#define T_STAR_GATE 148
-
-
-#define T_CLASS_I_SHIELD 149
-#define T_MASS_DRIVER 150
-#define T_ECM_JAMMER 151
-
-#define T_ANTI_GRAV 152 
-#define T_INERTIAL_STABILISATOR 153
-#define T_GYRO_DESTABILISATOR 154
-
-#define T_CLASS_III_SHIELD 155
-#define T_PLANETARY_RADIATION_SHIELD 156
-#define T_WARP_DISSIPATOR 157
-
-#define T_STEALTH_FIELD 158
-#define T_PERSONAL_SHIELD 159
-#define T_STEALTH_SUIT 160
-
-#define T_PULSAR 161
-#define T_WARP_INTERDICTOR 162
-#define T_LIGTHNING_FIELD 163
-
-#define T_CLASS_V_SHIELD 164
-#define T_MULTIWAVE_ECM_JAMMER 165
-#define T_GAUSS_CANNON 166
-
-#define T_CLOAKING_DEVICE 167
-#define T_STASIS_FIELD 168
-#define T_HARD_SHIELDS 169
-
-#define T_CLASS_VII_SHIELD 170
-#define T_PLANETARY_FLUX_SHIELD 171
-#define T_WIDE_AREA_JAMMER 172
-
-#define T_DISPLACEMENT 173//(?)
-#define T_SUBSPACE_TELEPORTER 174
-#define T_INERTIAL_NULLIFIER 175
-
-#define T_CLASS_X_SHIELD 176
-#define T_PLANETARY_BARRIER_SHIELD 177
-#define T_PHASING_CLOAK 178
-
-
-
-
-unsigned short ScienceCosts[8][15]=
-{
-	//Construction
-	80,
-	150,
-	250,
-	400,
-	650,
-	900,
-	1150,
-	1500,
-	2000,
-	3500,
-	6000,
-	7500,
-	0,
-	0,
-	0,
-	//Chemistry
-	50,
-	250,
-	650,
-	1150,
-	2000,
-	4500,
-	10000,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	//Power
-	50,
-	80,
-	250,
-	900,
-	2000,
-	2750,
-	3500,
-	4500,
-	10000,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-
-	//Sociology
-	150,
-	650,
-	1150,
-	2000,
-	4500,
-	6000,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	//Computers
-	50,
-	150,
-	400,
-	900,
-	1500,
-	2750,
-	3500,
-	4500,
-	6000,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	//Biology
-	80,
-	400,
-	900,
-	1150,
-	1500,
-	2750,
-	4500,
-	7500,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	//Physics
-	50,
-	150,
-	250,
-	900,
-	1150,
-	1500,
-	2000,
-	3500,
-	4500,
-	6000,
-	15000,
-	0,
-	0,
-	0,
-	0,
-	//Force Fields
-	250,
-	650,
-	900,
-	1500,
-	2000,
-	2750,
-	3500,
-	4500,
-	7500,
-	15000,
-	0,
-	0,
-	0,
-	0,
-	0
-};
-
-
-
-#define T_ANTI_MISSILE_ROCKET 0
-#define T_FIGHTER_BAYS 1
-#define T_REINFORCED_HULL 2
-#define T_AUTOMATED_FACTORIES 3
-#define T_MISSILE_BASE 4
-#define T_HEAVY_ARMOR 5
-#define T_BATTLE_PODS 6
-#define T_TROOP_PODS 7
-#define T_SURVIVAL_PODS 8
-#define T_SPACE_PORT 9
-#define T_ARMOR_BARRACKS 10
-#define T_FIGHTER_GARRISONS 11
-#define T_ROBO_MINE_PLANT 12
-#define T_BATTLE_STATION 13
-#define T_POWERED_ARMOR 14
-#define T_FAST_MISSILE_RACKS 15
-#define T_ADVANCED_DAMAGE_CONTROLS 16
-#define T_ASSAULT_SHUTTLES 17
-#define T_TITAN_CONSTRUCTION 18
-#define T_GROUND_BATTERIES 19
-#define T_BATTLEOIDS 20
-#define T_RECYCLOTRON 21
-#define T_AUTOREPAIR_UNIT 22
-#define T_ARTIFICIAL_PLANET_CONSTRUCTION 23
-#define T_ROBOTIC_FACTORY 24
-#define T_BOMBER_BAYS 25
-#define T_DEEP_CORE_MINE 26
-#define T_CORE_WASTE_DUMP 27
-#define T_STAR_FORTRESS 28
-#define T_ADVANCED_CITY_PLANNING 29
-#define T_HEAVY_FIGHTERS 30
-#define T_DOOM_STAR_CONSTRUCTION 31
-#define T_ARTEMIS_SYSTEM_NET 32
-
-#define T_NUCLEAR_FUSION 33
-#define T_COLD_FUSION 34
-#define T_FUSION_DRIVE 35
-#define T_FUSION_BOMB 36
-#define T_AUGMENTED_ENGINES 37
-#define T_ION_DRIVE 38
-#define T_IONPULSE_CANNON 39
-#define T_SHIELD_CAPACITY 40
-#define T_ANTI_MATTER_DRIVE 41
-#define T_ANTI_MATTER_TORPEDO 42
-#define T_ANTI_MATTER_BOMB 43
-#define T_TRANSPORTERS 44
-#define T_FOOD_REPLICATOR 45
-#define T_HIGH_ENERGY_FOCUS 46
-#define T_ENERGY_ABSORBER 47
-#define T_MEGAFLUX 48
-#define T_PROTON_TORPEDO 49
-#define T_HYPER_DRIVE 50
-#define T_HYPERX_CAPACITY 51
-#define T_INTERPHASE_DRIVE 52
-#define T_PLASMA_TORPEDO 53
-#define T_NEUTRONIUM_BOMB 54
-
-#define T_CHEMISTRY 55
-#define T_DEUTERIUM_FUEL 56
-#define T_TRITANIUM_ARMOR 57
-#define T_MERCULITE_MISSILE 58
-#define T_POLLUTION_PROCESSOR 59
-#define T_PULSON_MISSILE 60
-#define T_ATMOSPHERE_RENEWER 61
-#define T_IRIDIUM_FUEL 62
-#define T_NANO_DISASSEMBLER 63
-#define T_MICROLITE_CONSTRUCTION 64
-#define T_ZORTIUM_ARMOR 65
-#define T_ZEON_MISSILE 66
-#define T_NEUTRONIUM_ARMOR 67
-#define T_URIDIUM_FUEL 68
-#define T_THORIUM_FUEL 69
-#define T_ADAMANTIUM_ARMOR 70
-
-#define T_SPACE_ACADEMY 71
-#define T_XENO_PSYCHOLOGY 72
-#define T_ALIEN_CONTROL_CENTER 73
-#define T_STOCK_EXCHANGE 74
-#define T_ASTRO_UNIVERSITY 75
-#define T_CONFEDERATION 76
-#define T_IMPERIUM 77
-#define T_FEDERATION 78
-#define T_GALACTIC_UNIFICATION 79
-#define T_GALACTIC_CURRENCY_EXCHANGE 80
-
-#define T_ELECTRONIC_COMPUTER 81
-#define T_RESEARCH_LAB 82
-#define T_OPTRONIC_COMPUTER 83
-#define T_GUIDIANCE_SYSTEM (?)
-#define T_NEURAL_SCANNER 85
-#define T_SCOUT_LAB 86
-#define T_SECURITY_STATIONS 87
-#define T_POSITRONIC_COMPUTER 88
-#define T_PLANETARY_SUPERCOMPUTER 89
-#define T_HOLO_SIMULATOR 90
-#define T_EMISSION_GUIDIANCE_SYSTEM 91
-#define T_RANGEMASTER 92
-#define T_CYBER_SECURITY_LINK 93
-#define T_CYBERTRONIC_COMPUTER 94
-#define T_AUTOLAB 95
-#define T_STRUCTURAL_ANALYZER 96
-#define T_ANDROID_FARMERS 97
-#define T_ANDROID_WORKERS 98
-#define T_ANDROID_SCIENTISTS 99
-#define T_VIRTUAL_REALITY_NETWORK 100
-#define T_GALACTICAL_CYBERNETWORK 101
-#define T_PLEASURE_DOME 102
-#define T_MOLECULAR_COMPUTER 103
-#define T_ACHILLES_TARGETING_SYSTEM 104
-
-#define T_HYDROPONIC_FARM 105
-#define T_BIOSPHERES 106
-#define T_CLONING_CENTER 107
-#define T_SOIL_ENRICHEMENT 108
-#define T_DEATH_SPORES 109
-#define T_TELEPATHIC_TRAINING 110
-#define T_MICROBIOTICS 111
-#define T_TERRAFORMING 112
-#define T_SUBBTERRAN_FARMS 113
-#define T_WEATHER_CONTROL_SYSTEM 114
-#define T_PSIONICS 115
-#define T_INTELLIGENCE_GROWTH 116
-#define T_BIO_TERMINATOR 117
-#define T_UNIVERSAL_ANTIDOTE 118
-#define T_BIOMORPH_FUNGI 119
-#define T_GAIA_TRANSFORMATION 120
-#define T_EVOLUTIONARY_MUTATION 121
-
-#define T_PHYSICS 122
-#define T_FUSION_BEAM 123
-#define T_FUSION_RIFLE 124
-#define T_TACHYON_COMMUNICATION 125
-#define T_TACHYON_SCANNER 126
-#define T_BATTLE_SCANNER 127
-#define T_NEUTRON_BLASTER 128
-#define T_NEUTRON_SCANNER 129
-#define T_TRACTOR_BEAM 130
-#define T_GRAVITON_BEAM 131
-#define T_PLANETARY_GRAVITATION_GENERATION 132
-#define T_SUBSPACE_COMMUNICATION 133
-#define T_JUMP_GATE 134
-#define T_PHASOR 135
-#define T_PHASOR_RIFLE 136
-#define T_MULTI_PHASE_SHIELD 137
-#define T_PLASMA_CANNON 138
-#define T_PLASMA_RIFLE 139
-#define T_PLASMA_WEB 140
-#define T_DISRUPTOR_CANNON 141
-#define T_DIMENSION_PORTAL 142
-#define T_HYPERSPACE_COMMUNICATION 143
-#define T_SENSORS 144
-#define T_MAULER_DEVICE 145
-#define T_TIME_WARP_FACILITY 146
-#define T_STELLAR_CONVERTER 147
-#define T_STAR_GATE 148
-
-#define T_CLASS_I_SHIELD 149
-#define T_MASS_DRIVER 150
-#define T_ECM_JAMMER 151
-#define T_ANTI_GRAV 152 //(?)
-#define T_INERTIAL_STABILISATOR 153
-#define T_GYRO_DESTABILISATOR 154
-#define T_CLASS_III_SHIELD 155
-#define T_PLANETARY_RADIATION_SHIELD 156
-#define T_WARP_DISSIPATOR 157
-#define T_STEALTH_FIELD 158
-#define T_PERSONAL_SHIELD 159
-#define T_STEALTH_SUIT 160
-#define T_PULSAR 161
-#define T_WARP_FIELD 162 //(?)
-#define T_LIGTHNING_FIELD 163
-#define T_CLASS_V_SHIELD 164
-#define T_MULTIWAVE_ECM_JAMMER 165
-#define T_GAUSS_CANNON 166
-#define T_CLOAKING_DEVICE 167
-#define T_STASIS_FIELD 168
-#define T_HARD_SHIELDS 169
-#define T_CLASS_VII_SHIELD 170
-#define T_PLANETARY_FLUX_SHIELD 171//(?)
-#define T_WIDE_AREA_JAMMER 172
-#define T_DISPLACEMENT 173//(?)
-#define T_SUBSPACE_TELEPORTER 174
-#define T_INERTIAL_NULLIFIER 175
-#define T_CLASS_X_SHIELD 176
-#define T_PLANETARY_BARRIER_SHIELD 177
-#define T_PHASING_CLOAK 178
-
-unsigned char tbcs[3]=
-{
-	1,2,4
-};
-
-
-unsigned short prod[62]=
-{
-	200,
-	400,
-	60,
-	60,
-	120,
-	80,
-	150,
-	150,
-	150,
-	600,
-	200,
-	200,
-	800,
-	200,
-	250,
-	200,
-	2100,
-	1000,
-	500,
-	50,
-	100,
-	100,
-	200,
-	80,
-	150,
-	100,
-	60,
-	150,
-	200,
-	60,
-	150,
-	120,
-	200,
-	50,
-	50,
-	50,
-	250,
-	250,
-	60,
-	60,
-	100,
-	120,
-	250, //(!! +X*250)
-	150,
-	200,
-	500,
-	500,
-	1000,
-	200,
-	80,
-	300,
-	200,
-	500,
-	120,
-	100,
-	200,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0
-};
-
-unsigned char cost[62]=
-{
-	0,
-	2,
-	1,
-	2,
-	1,
-	2,
-	2,
-	2,
-	3,
-	2,
-	3,
-	0,
-	3,
-	3,
-	8,
-	4,
-	5,
-	0,
-	0,
-	0,
-	0,
-	10,
-	1,
-	3,
-	2,
-	1,
-	2,
-	4,
-	1,
-	2,
-	1,
-	3,
-	0,
-	0,
-	0,
-	3,
-	3,
-	2,
-	1,
-	2,
-	0,
-	0,
-	4,
-	3,
-	0,
-	2,
-	6,
-	1,
-	3,
-	3,
-	5,
-	2,	
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0
-};
-
-
-
-
-#define B_TRADING_GOODS 0
-#define B_COLONY_BASE 1
-#define B_STAR_BASE 2
-#define B_MARINE_BARRACKS 3
-#define B_AUTOMATED_FACTORIES 4
-#define B_MISSILE_BASE 5
-#define B_SPACE_PORT 6
-#define B_ARMOR_BARRACKS 7
-#define B_FIGHTER_GARRISON 8
-#define B_ROBO_MINE_PLANT 9
-#define B_BATTLE_STATION 10
-#define B_GROUND_BATTERIES 11
-#define B_RECYCLOTRON 12
-#define B_ARTIFICIAL_PLANET_CONSTRUCTION 13
-#define B_ROBOTIC_FACTORY 14
-#define B_DEEP_CORE_MINE 15
-#define B_CORE_WASTE_DUMP 16
-#define B_STAR_FORTRESS 17
-#define B_ARTEMIS_SYSTEM_NETWORK 18
-
-#define B_COLONY_SHIP 19
-#define B_FREIGHTERS 20
-#define B_OUTPOST_SHIP 21
-#define B_TRANSPORT 22
-#define B_FOOD_REPLICATOR 23
-#define B_POLLUTION_PROCESSOR 24
-#define B_ATOMOSPHERE_RENEWER 25
-
-#define B_SPACE_ACADEMY 26
-#define B_ALIEN_CONTROL_CENTER 27    
-#define B_STOCK_EXCHANGE 28
-#define B_ASTRO_UNIVERSITY 29
-
-#define B_RESEARCH_LAB 30
-#define B_PLANETARY_SUPERCOMPUTER 31
-#define B_HOLO_SIMULATOR 32
-#define B_AUTOLAB 33
-#define B_ANDROID_FARMER 34
-#define B_ANDROID_WORKER 35
-#define B_ANDROID_SCIENTIST 36
-#define B_GALACTIC_CYBERNETWORK 37
-#define B_PLEASURE_DOME 38
-
-#define B_HYDROPONIC_FARM 39
-#define B_BIOSPHERES 40
-#define B_CLONING_CENTER 41
-#define B_SOIL_ENRICHMENT 42
-#define B_TERRAFORMING 43
-#define B_SUBTERRAN_FARMS 44
-#define B_WEATHER_CONTROL_SYSTEM 45
-#define B_GAIA_TRANSFORMATION 46
-
-#define B_DIMENSION_PORTAL 47
-#define B_STELLAR_CONVERTER 48
-#define B_PLANETARY_RADIATION_SHIELD 49
-#define B_WARP_FIELD_DISSIPATOR 50
-#define B_PLANETARY_FLUX_SHIELD 51
-#define B_PLANETARY_BARRIER_SHIELD 52
-
-#define B_GRAVITY_GENERATOR 53
-
-#define B_SPY 54
-#define B_GOVERNMENT_CENTER 55
-#define B_HOUSING 56
-
-#define B_SHIP_1 57
-#define B_SHIP_2 58
-#define B_SHIP_3 59
-#define B_SHIP_4 60
-#define B_SHIP_5 61
-
-#define MAX_BUILDINGS 62
-
-
-#define P_FEUDALISM 0
-#define P_DICTATORSHIP 1
-#define P_DEMOCRACY 2
-#define P_UNIFICATION 3
-#define P_WARLORD 4
-
-#define P_AQUATIC 5
-#define P_SUBTERRAN 6
-#define P_LOWG 7
-#define P_HIGHG 8
-#define P_LARGE_HOMEWORLD 9
-#define P_RICH_HOMEWORLD 10
-#define P_POOR_HOMEWORLD 11
-#define P_ARTIFACTS_HOMEWORLD 12
-#define P_CYBERNETIC 13
-#define P_LITHOVORE 14
-#define P_TOLERANT 15
-#define P_LUCK 16
-#define P_CHARM 17
-#define P_TELEPATH 18
-#define P_OMNISCIENT 19
-#define P_FANTASTIC_TRADER 20
-#define P_TRANS_DIMENSIONAL 21
-#define P_05GROWTH 22
-#define P_15GROWTH 23
-#define P_20GROWTH 24
-#define P_15FOOD 25
-#define P_30FOOD 26
-#define P_40FOOD 27
-#define P_20INDUSTRY 28
-#define P_40INDUSTRY 29
-#define P_50INDUSTRY 30
-#define P_20SCIENCE 31
-#define P_40SCIENCE 32
-#define P_50SCIENCE 33
-#define P_05BCS 34
-#define P_15BCS 35
-#define P_20BCS 36
-#define P_08ATTACK 37
-#define P_12ATTACK 38
-#define P_15ATTACK 39
-#define P_08DEFENSE 40
-#define P_12DEFENSE 41
-#define P_15DEFENSE 42
-#define P_09GROUND 43
-#define P_11GROUND 44
-#define P_12GROUND 45
-#define P_09SPY 46
-#define P_11SPY 47
-#define P_12SPY 48
-#define P_CREATIVE 49
-#define P_UNCREATIVE 50
-#define P_REPULSIVE 51
-
-#define MAX_PICKS 52
-
-signed char PickCosts[MAX_PICKS]=
-{
-	-4,0,7,6,4,5,6,-5,6,1,2,-1,3,4,10,10,3,3,6,3,4,5,-4,3,6,-3,4,7,-3,3,6,-3,3,6,-4,5,8,-2,2,4,-2,3,7,-2,2,4,-3,3,6,8,-4,-6
-}
+	unsigned char time,used,wohin;
+} Transport[MAX_TRANSPORT];
 
 
 struct Ships
 {
-	unsigned char Type; //0: Outpost, 1: Transporter, 2: Colony Ship, 3: Fighter, 4: Corvette, 5: Cruiser, 6: Battle Ship, 7: Titan, 8: Dead Star
+	unsigned char Type; //0: none, 1: Transporter, 2: Colony Ship, 3: Outpost, 3: Fighter, 4: Corvette, 5: Cruiser, 6: Battle Ship, 7: Titan, 8: Dead Star, 
 	unsigned char Destination,Start,Progress;
 };
 
 
-#define PL_NONE 0
-#define PL_GAS_PLANET 1
-#define PL_ASTEROIDS 2
-#define PL_GAIA 3
-#define PL_TERRAN 4
-#define PL_OCEAN 5
-#define PL_TUNDRA 6
-#define PL_SWAMP 7
-#define PL_DESERT 8
-#define PL_ARID 9
-#define PL_RADIATED 10
-#define PL_BARREN 11
-#define PL_TOXIC 12
-
 class Planets
 {
+protected:
+	unsigned char BQueue[10];
 public:
 	
 	unsigned char Type; // 0: does not exist, 1: gas planet, 2: asteroids, 3: gaia, 4: terran, 5: ocean, 6: tundra, 7: swamp, 8: desert, 9: arid, 10: radiated, 11: barren, 12: toxic
@@ -1123,7 +43,7 @@ public:
 	unsigned char Minerals; // 0=Ultra Poor, 1=Poor, 2=average, 3=rich, 4=ultra rich
 	unsigned char Special; //0=none, 1=gold, 2=diamonds, 3: tech, 4: inhabitants, 5: splinter colony
 	unsigned char Gravitation; // 0=Low-G, 1=1 G, 2=High-G
-	unsigned char BQueue[10];
+
 
 	short Industry,Food,Science,Money;
 	unsigned char FoodDemand,IndustryDemand;
@@ -1131,66 +51,48 @@ public:
 	unsigned char maxPop;
 	unsigned char Building[60];
 	unsigned short progress; // Production that is in the actual project
-	unsigned char System;
-	unsigned short overpop;
+	unsigned char system;
+	signed short overpop;
 	unsigned char Population;
 	unsigned char checked;
 	unsigned char bought;
 
-	void Planets::AddQueue(unsigned char item) // end
-{
-		unsigned char j;
-	if(CanBuild(item)==1)
-		for(j=0;j<10;j++)
-			if(BQueue[j]==0)
-			{
-				BQueue[j]=item;
-				j=10;
-			}
-}
+	unsigned char Planets::CanBuild(unsigned char item);
 
-	unsigned char Planets::CanBuild(unsigned char item)
-{
-/*	not already in queue
-	tech availible
-	not availible because of grav/race/already built in system?
-	not already built*/
-		return 1;
-}
-
-	void Planets::InsertinQueue(unsigned char item) // 1. place
-{
-	unsigned char j;
-
-	if((CanBuild(item)==1)&&(bought==0))
+	unsigned char Planets::BQ(unsigned char num)
 	{
-		for(j=10;j>1;j--)
-			BQueue[j]=BQueue[j-1];
-		BQueue[0]=item;
-	}
-}
-
-	void Planets::SwitchPeople(unsigned char who)
-{
-	switch(who)
+		if((num>=0)&&(num<=10)) return BQueue[num];
+		else return 0;
+	};
+	unsigned char Planets::SQ(unsigned char num,unsigned char what)
 	{
-		case 0:if(Farmers>0) { Farmers--;Workers++;};break;//F -> W
-		case 1:if(Farmers>0) { Farmers--;Scientists++;};break;//F -> S
-		case 2:if(Workers>0) { Workers--;Farmers++;};break;//W -> F
-		case 3:if(Workers>0) { Workers--;Scientists++;};break;//W -> S
-		case 4:if(Scientists>0) { Scientists--;Farmers++;};break;//S -> F
-		case 5:if(Scientists>0) { Scientists--;Workers++;};break;//S -> W
-			//evtl noch Farmen verbieten, wenn Produktion 0 betraegt.
+		if((num>=0)&&(num<=10)&&(what<MAX_BUILDINGS)) { BQueue[num]=what;return 1;}
+		else return 0;
+	};
+
+
+	unsigned char Planets::SwitchPeople(unsigned char who)
+	{
+		switch(who)
+		{
+			case 0:if(Farmers>0) { Farmers--;Workers++;return 1;};break;//F -> W
+			case 1:if(Farmers>0) { Farmers--;Scientists++;return 1;};break;//F -> S
+			case 2:if(Workers>0) { Workers--;Farmers++;return 1;};break;//W -> F
+			case 3:if(Workers>0) { Workers--;Scientists++;return 1;};break;//W -> S
+			case 4:if(Scientists>0) { Scientists--;Farmers++;return 1;};break;//S -> F
+			case 5:if(Scientists>0) { Scientists--;Workers++;return 1;};break;//S -> W
+				//evtl noch Farmen verbieten, wenn Produktion 0 betraegt.
+		}
+		return 0;
 	}
-}
 
 unsigned char Planets::TransportPeople(unsigned char who)
 {
 	switch(who)
 	{
-		case 0:if(Farmers>0) Farmers--;return 1;break;
-		case 1:if(Workers>0) Scientists--;return 1;break;
-		case 2:if(Scientists>0) Scientists--;return 1;break;
+		case 0:if(Farmers>0) { Farmers--;return 1;}break;
+		case 1:if(Workers>0) { Scientists--;return 1;}break;
+		case 2:if(Scientists>0) { Scientists--;return 1;}break;
 	}
 	return 0;
 }
@@ -1206,12 +108,12 @@ struct systems
 	unsigned char x,y;
 //	unsigned char Special;  //Monsters, Time-stops etc.
 	char Name [20];
-//	unsigned char planetcount;
 } System[MAX_SYSTEMS];
 
-	Planets* p;
 
 
+Planets* p;
+Planets* h;
 
 
 
@@ -1220,12 +122,16 @@ class player
 //Genes:
 public:
 	unsigned char picks[MAX_PICKS];
-	unsigned char OQueue[1000];
-	unsigned char SQueue[50];
+	unsigned char OQueue[MAX_ORDERS];
+	unsigned char SQueue[MAX_SCIENCE];
+
+	unsigned short time,orders; //wieviel zeit/wieviele Befehle wurden benoetigt?
 
 //temp
 	unsigned long bcs;
-	unsigned char tech[200];
+	unsigned char pl,mi;
+
+	unsigned char tech[MAX_TECH],temp;
 	unsigned short OC,SC,PC; //OrderCounter, ScienceQueueCounter, Planetcounter
 	unsigned long science,Freighter;
 	short AvailibleFood,AvailibleFreighters,Fitness;//,Commando;
@@ -1234,10 +140,12 @@ public:
 	unsigned char player::SearchNextPlanet()
 	{
 		unsigned char b;
-		b=PC+1;
-		while(b!=PC)
+		if(PC+1>=MAX_PLANETS)
+			b=0;
+		else			
+			b=PC+1;
+		while(true)
 		{
-			if(b>=MAX_PLANETS) b=0;
 			if(planet[b].Settlement==2)
 			{
 				if(planet[b].checked==1)
@@ -1246,87 +154,160 @@ public:
 				return b;
 			}
 			b++;
+			if(b>=MAX_PLANETS) b=0;
 		}
 	}
 
 	unsigned char player::Order(unsigned char what)
 	{
+		unsigned short i,ok;
+		unsigned char a,b,c;
+		ok=0;
+		c=0;
+		
 		p=&planet[PC];
-		switch(what)
+		if(what<6) ok=p->SwitchPeople(what);
+		else if(what<12) { 
+							ok|=p->SwitchPeople(what-6);
+							ok|=p->SwitchPeople(what-6);
+							ok|=p->SwitchPeople(what-6); 
+						}//~~~~~~
+		else if(what<31)
 		{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-			case 4:PC=SearchNextPlanet();break;//NOP und Ende noch einfuegen
-			case 5:p->SwitchPeople(0);break;
-			case 6:p->SwitchPeople(1);break;
-			case 7:p->SwitchPeople(2);break;
-			case 8:p->SwitchPeople(3);break;
-			case 9:p->SwitchPeople(4);break;
-			case 10:p->SwitchPeople(5);break;
-			case 11:p->SwitchPeople(0);p->SwitchPeople(0);p->SwitchPeople(0);break;
-			case 12:p->SwitchPeople(1);p->SwitchPeople(1);p->SwitchPeople(1);break;
-			case 13:p->SwitchPeople(2);p->SwitchPeople(2);p->SwitchPeople(2);break;
-			case 14:p->SwitchPeople(3);p->SwitchPeople(3);p->SwitchPeople(3);break;
-			case 15:p->SwitchPeople(4);p->SwitchPeople(4);p->SwitchPeople(4);break;
-			case 16:p->SwitchPeople(5);p->SwitchPeople(5);p->SwitchPeople(5);break;
-			case 17:
-			case 18:
-			case 19:if((AvailibleFreighters>4)&&(p->TransportPeople(what-17)&&(TransportCounter<10))==1)
-					{
-						Transport[TransportCounter].woher=PC;
-						Transport[TransportCounter].wer=what-17;
-						Transport[TransportCounter].ok=0;
-						TransportCounter++;
-					};break;
-			case 20:
-			case 21:
-			case 22:
-			case 23:
-			case 24:
-			case 25:
-			case 26:
-			case 27:
-			case 28:
-			case 29:
-				if((p->Population<p->maxPop)&&(Transport[what-20].ok==0))
+			if(p->Workers>0)
+			{
+				if(what-12==p->system)	
+				{
+					for(a=0;a<MAX_TRANSPORT;a++)
+						if(Transport[a].used==0)
+						{
+							for(b=0;b<5;b++)
+							{
+								if((System[p->system].Object[b]->Settlement==2)&&(System[p->system].Object[b]->Population<System[p->system].Object[b]->maxPop)&&(p->Population>0)&&(p->Workers>0))
+								{
+									Transport[a].used=1;
+									Transport[a].wohin=(5*what-12)+b;
+									p->Workers--;
+									p->Population--;
+									Transport[a].time=0;
+									a=20;
+									ok=1;
+									b=5;
+								}
+							}							
+						}
+				}
+				else
+				if(AvailibleFreighters>4)
 					{		
-						Transport[what-20].ok=1;
-						Receive[ReceiveCounter].wohin=PC;
-						Receive[ReceiveCounter].woher=what-20;
-						ReceiveCounter++;
+						for(a=0;a<MAX_TRANSPORT;a++)
+							if(Transport[a].used==0)
+							{
+								for(b=0;b<5;b++)
+								{
+									if((System[p->system].Object[b]->Settlement==2)&&(System[p->system].Object[b]->Population<System[p->system].Object[b]->maxPop)&&(p->Population>0)&&(p->Workers>0))
+									{
+										Transport[a].used=1;
+										Transport[a].wohin=(5*what-12)+b;
+										p->Workers--;
+										p->Population--;
+										AvailibleFreighters-=5;
+										Transport[a].time=
+										sqrt(
+											(System[p->system].x-System[planet[what-12].system].x)*(System[p->system].x-System[planet[what-12].system].x)+
+											(System[p->system].y-System[planet[what-12].system].y)*(System[p->system].y-System[planet[what-12].system].y)
+											);
+										a=20;
+										ok=1;
+									}
+								}
+							}
 
 						// Anders loesen... muessen ja mehr als 10x Leute erschickt werden koennen...
+//						vor allem innerhalb eines Systems...
+//						vielleicht extra Befehl fuer sub-system transport
 					}
+			}
+		}
 
+		else if(what<36)
+		{
+			if((p->Population>0)&&(p->Settlement==2)&&(p->Workers>0)&&(System[p->system].Object[what-31]->Settlement==2)&&(System[p->system].Object[what-31]->Population<System[p->system].Object[what-31]->maxPop)&&(System[p->system].Object[what-31]->Population>0)&&(System[p->system].Object[what-31]->Settlement==2))
+			{
+				p->Workers--;
+				p->Population--;
+				System[p->system].Object[what-31]->Workers++;
+				System[p->system].Object[what-31]->Population++;
+				ok=1;
+			}
+		}
+		else if(what==36)
+		{
+			if(prod[p->BQ(0)]*4<bcs)
+				  {
+					  ok=1;
+					  bcs-=prod[p->BQ(0)]*4;
+					  p->progress=prod[p->BQ(0)];
+					  // noch Building als 'gekauft' markieren, um Cheaten zu verhindern
+				  }
+		}
 
-//		case ... :if(prod[BQueue[0]]*4<bcs)
-//				  {
-//					  bcs-=prod[BQueue[0]]*4;
-//					  progress=prod[BQueue[0]];
-//					  // noch Building als 'gekauft' markieren, um Cheaten zu verhindern
-//				  }
-//		case 24x:science[sciencecounter]=SearchScienceProject(number,row); //in ne Zahl halt umwandeln und ueberpruefen ob noch erforschbar oder net
+		else if(what<99)
+		{
+			if(p->CanBuild(what-37)==1)
+			{
+				for(a=1;a<10;a++) 
+					p->SQ(a,p->BQ(a-1)); //kein ok=..., weil is ja schon ueberprueft
+				ok=p->SQ(0,what-37);
+			}
+		}
+		
+		else if(what<161)
+		{
+			if(p->CanBuild(what-99)==1)
+			{
+				for(a=1;a<10;a++)
+					if(p->BQ(a)==0)
+					{				
+						ok=p->SQ(a,what-99);
+						a=10;
+					}
+			}
+		}
+		else
+		if(what<180)
+		{
+			for(i=0;i<MAX_SHIPS;i++) //evtl noch im System Pointer auf Schiffe
+				if((Ship[i].Type>0)&&(Ship[i].Start==p->system)&&(Ship[i].Start==Ship[i].Destination)&&(p->system!=what-161)&&(Ship[i].Progress==0))
+				{
+					Ship[i].Destination=what-161;
+					Ship[i].Progress=
+						sqrt(
+							(System[Ship[i].Start].x-System[Ship[i].Destination].x)*(System[Ship[i].Start].x-System[Ship[i].Destination].x)+
+							(System[Ship[i].Start].y-System[Ship[i].Destination].y)*(System[Ship[i].Start].y-System[Ship[i].Destination].y)
+							);
+					i=MAX_SHIPS;
+					ok=1;
+					//fehlt: Checken ob in Reichweite
+				}
+		}
+		else 
+		{
+			ok=1;
+			c=SearchNextPlanet();
+		}
 
-//		case 63x:buildingcounter++;for(i=1;i<buildingcounter;i++) BQueue[i]=BQueue[i-1];
-//				BQueue[0]=63x;
-//				break;
-//		case 63x: if buildingcounter<10
-//				 {
-//					BQueue[buildingcounter]=63x;buildingcounter++;
-//				 }
-//			break;
-
-//SellBuilding: if(building63x vorhanden)
-//			  {
-//				  bcs+=prod[63x]/4;
-//				  building[63x]=0;
-//			  }
-
-	}
-		if(PC==255) return 1;
-		return 0;
+		if(ok==0)
+			return 2;
+			//rausloeschen!
+		else
+		if(c==255) 
+			return 1;
+		else
+		{
+			PC=c;
+			return 0;
+		}
 }
 
 
@@ -1360,57 +341,46 @@ mmmh...
 unsigned char player::CanResearch(unsigned char what)
 {
 	if(tech[what]==1) return 0;
-	if(Area[ScienceArea[what].Field][ScienceArea[what].Progress]==1) return 0; //Feld schon erforscht
+
+
+	switch(what)
+	{
+
+//		...
+	}
+
+
+
+
 	switch(what)
 	{
 		case T_POLLUTION_PROCESSOR:
 		case T_ATMOSPHERE_RENEWER:
-		case T_NANO_DISASSEMBLER:
-		case T_CORE_WASTE_DUMP:if(picks[P_TOLERANT]==1) return 0;break;
+		case T_NANO_DISASSEMBLER:if(picks[P_TOLERANT]==1) return 0;break;
 		case T_HYDROPONIC_FARM:
-		case T_SOIL_ENRICHEMENT:
-		case T_SUBBTERRAN_FARMS:
-		case T_FOOD_REPLICATOR:if(picks[P_LITHOVORE]==1) return 0;break;
-		case T_CONFEDERATION:if(picks[P_FEUDALISM]==0) return 0;break;
-		case T_IMPERIUM:if(picks[P_DICTATORSHIP]==0) return 0;break;
-		case T_FEDERATION:if(picks[P_DEMOCRACY]==0) return 0;break;
-		case T_GALACTIC_UNIFICATION:if(picks[P_UNIFICATION]==0) return 0;break;
-		case T_HOLO_SIMULATOR:
-		case T_VIRTUAL_REALITY_NETWORK:
-		case T_PLEASURE_DOME:if(picks[P_UNIFICATION]==1) return 0;break;
+		case T_SOIL_ENRICHMENT:if(picks[P_LITHOVORE]==1) return 0;break;
 	};
 	return 1;
 }
 
 	void player::BetweenTime()
 {
-	unsigned char i,j,k;
+	unsigned short i,j,k,points;
 	float gravitation,moral;
-//	race* r;
-
-//for(i=0;i<MAX_PEOPLE;i++)
-//	planet[people[i].planet].All++;
-	//	for(i=0;i<250;i++)
-//		planet[people[i].planet].population[people[i].race]++; //Volkszaehlung
-//~~~~~~~~~~~~~~~~~~~~~~
-//	for(i=0;i<MAX_PLANETS;i++)
-//		for(j=0;j<10;j++)
-//			planet[i].All+=planet[i].population[j];
-
-//Daten noch resetten!
-
-//maxpop noch rein
-//	for(i=0;
+	unsigned char temp,a;
 
 	//100 Zuege durchlaufen lassen
 
-	for(k=0;((k<100)&&(OC<1000));k++)
+	for(k=0;((k<100)&&(OC<MAX_ORDERS));k++)
 	{
+			for(i=0;i<MAX_PLANETS;i++)
+				planet[i].checked=0;
 
 	for(i=0;i<MAX_PLANETS;i++)
 		if((planet[i].Type>0)&&(planet[i].Settlement==2))
 		{
 			p=&planet[i];
+			p->bought=0;
 
 //	growth; //0:*0, 1: *0.5, 2: *1, 3: *1.5, 4: *2
 
@@ -1441,7 +411,7 @@ unsigned char player::CanResearch(unsigned char what)
 			
 			p->Money=(
 				(p->Special==1)*5+(p->Special==2)*10
-			+p->Population*tbcs[picks[P_BCS]])*
+			+p->Population* (1-picks[P_05BCS]*0.5+picks[P_15BCS]*0.5+picks[P_20BCS]) )*
 
 			(1+
 							  p->Building[B_SPACE_PORT]*0.5
@@ -1464,7 +434,7 @@ unsigned char player::CanResearch(unsigned char what)
 							(p->Building[B_ASTRO_UNIVERSITY]
 							+p->Building[B_SOIL_ENRICHMENT]
 							+p->Building[B_WEATHER_CONTROL_SYSTEM]*2
-							+farming[picks[P_FOOD]]/2
+							+(picks[P_15FOOD]*1.5+picks[P_30FOOD]*3+picks[P_40FOOD]*4)
 							)
 							+p->Building[B_HYDROPONIC_FARM]*2
 							+p->Building[B_SUBTERRAN_FARMS]*4
@@ -1489,7 +459,7 @@ unsigned char player::CanResearch(unsigned char what)
 						0.5
 						*(1-picks[P_TOLERANT])
 						*(1-0.5*p->Building[B_POLLUTION_PROCESSOR])
-						*(1-0.75*p->Building[B_ATOMOSPHERE_RENEWER])
+						*(1-0.75*p->Building[B_ATMOSPHERE_RENEWER])
 						*( p->Industry -2*p->Size * (tech[T_NANO_DISASSEMBLER]+1));
 
 			p->Industry+=p->Building[B_AUTOMATED_FACTORIES]*5
@@ -1504,7 +474,12 @@ unsigned char player::CanResearch(unsigned char what)
 						+p->Building[B_PLANETARY_SUPERCOMPUTER]
 						+p->Building[B_GALACTIC_CYBERNETWORK]
 						+p->Building[B_ASTRO_UNIVERSITY]
-						+tech[T_INTELLIGENCE_GROWTH])
+						+tech[T_INTELLIGENCE_GROWTH]
+						+3
+						-picks[P_20SCIENCE]
+						+picks[P_40SCIENCE]
+						+2*picks[P_50SCIENCE]
+						)
 						*
 						(1
 						 +picks[P_DEMOCRACY]*0.5
@@ -1520,92 +495,165 @@ unsigned char player::CanResearch(unsigned char what)
 
 //				Alle Leute überprüfen wegen tolerant, aquatisch, subterran
 //				Size, Typ
-
-			p->Food-=p->FoodDemand;
-			if(p->Food>0)
+			if(p->Food>=p->FoodDemand)
+			{
+				p->Food-=p->FoodDemand;
 				AvailibleFood+=p->Food;
-//			if(p->Industry>=p->IndustryDemand)
-//			{
-//			}
+			}
+			else
+			{
+				p->FoodDemand-=p->Food;
+				p->Food=0;
+			};
+			if(p->Industry>=p->IndustryDemand)
+				p->Industry-=p->IndustryDemand;
+			else
+			{
+				p->IndustryDemand-=p->Industry;
+				p->Industry=0;
+			}
+
 			// else hungern, keine Freighters!!
-			p->Industry-=p->IndustryDemand;
 
 			if(p->Industry>0)
 				{
-					if(p->BQueue[0]==B_TRADING_GOODS)
+					if(p->BQ(0)==B_TRADING_GOODS)
 					{
+
 						if(picks[P_FANTASTIC_TRADER]==1)
 							bcs+=p->Industry;
 						else bcs+=p->Industry/2;
 					}
-					else if(p->BQueue[0]==B_HOUSING)
-					{
-						p->overpop+=p->Industry*(growth[p->Population][p->maxPop] / (2.5*p->Population));
-						//bonus
-					}
+					else if(p->BQ(0)==B_HOUSING)
+						p->overpop+=p->Industry*(growth[p->Population][p->maxPop-1] / (2.5*p->Population));
 					else
 					{
 						p->progress+=p->Industry;
-						if(p->progress>=prod[p->BQueue[0]])
+						
+				
+					if(p->progress>=prod[p->BQ(0)])
 						{
-							p->progress-=prod[p->BQueue[0]];
-							p->Building[p->BQueue[0]]=1;
-							for(j=0;j<9;j++)
-								p->BQueue[i]=p->BQueue[i+1];
-							if(p->BQueue[0]==0) 
+							p->progress-=prod[p->BQ(0)];
+//							printf("%s, ",BName[p->BQ(0)].Name);
+							
+							if((p->BQ(0)>=B_SHIP_1)&&(p->BQ(0)<=B_SHIP_5))
+							{
+								for(j=0;j<MAX_SHIPS;j++)
+									if(Ship[j].Type==0)
+									{
+										Ship[j].Start=p->system;
+										Ship[j].Progress=0;
+										Ship[j].Destination=p->system;
+										Ship[j].Type=p->BQ(0)-B_SHIP_1+4;
+										j=MAX_SHIPS;
+									}
+							}
+							else 
+								if(p->BQ(0)==B_COLONY_BASE)
+							{
+								for(j=0;j<5;j++)
+
+									if((System[p->system].Object[j]->Type>2)&&(System[p->system].Object[j]->Settlement<2))
+									{
+//										printf("ColonyBase");
+										System[p->system].Object[j]->Population=1;
+										if(System[p->system].Object[j]->Settlement==1)
+											System[p->system].Object[j]->Building[B_MARINE_BARRACKS]=1;
+										System[p->system].Object[j]->Settlement=2;
+										System[p->system].Object[j]->Farmers=1;
+										j=6;
+									}
+								if(j==5)
+									bcs+=100;//verschrotten;
+
+							}
+
+
+							else
+								if(p->BQ(0)==B_FREIGHTERS)
+								{
+									AvailibleFreighters+=5;
+									Freighter+=5;
+								}
+							else
+								p->Building[p->BQ(0)]=1;
+
+							for(a=0;a<9;a++)
+								p->SQ(a,p->BQ(a+1));
+							p->SQ(9,0);
+							if(p->BQ(0)==0) 
 							{
 								if(p->Population>=p->maxPop)
-									p->BQueue[0]=B_TRADING_GOODS;
+									p->SQ(0,B_TRADING_GOODS);
 								else
-									p->BQueue[0]=B_HOUSING;
+									p->SQ(0,B_HOUSING);
 							}
 						}
 					}
+			}
 
-				p->overpop+=(growth[p->Population][p->maxPop]*picks[P_GROWTH])/2;
+				p->overpop+=(growth[p->Population][p->maxPop-1]*(1-picks[P_05GROWTH]*0.5+picks[P_15GROWTH]*0.5+picks[P_20GROWTH]));
+				p->overpop-=(p->FoodDemand+p->IndustryDemand)*50;
 				while(p->overpop>999)
 				{
 					p->overpop-=1000;
 					p->Population++;
 					p->Workers++;
 				}
-
-
+				while(p->overpop<0)
+				{
+					p->overpop+=1000;
+					p->Population--;
+					if(p->Scientists>0)
+						p->Scientists--;
+					else if(p->Workers>0)
+						p->Workers--;
+					else if(p->Farmers>0)
+						p->Farmers--;
 				}
+
+
 				science+=p->Science;
 			}
 
 		if(science>ScienceCosts[ScienceArea[SQueue[SC]].Field][ScienceArea[SQueue[SC]].Progress])
 		{
+
 			science=0;//-=science[ScienceProjekt]; oder wird doch aufgespart?
 			tech[SQueue[SC]]=1;
-			while(CanResearch(SQueue[SC])==0) SC++;
-			//~~~~~~~~~~ Abbruchbedingung rein
+
+			SC++;
+//			while((CanResearch(SQueue[SC])==0)&&(SC<MAX_SCIENCE)) SC++;
+			if(SC>=MAX_SCIENCE)
+			{
+				SC=0;
+				SQueue[0]=T_NONE;
+			}
 		}
 			
 			for(i=0;i<MAX_PLANETS;i++)
 				if((planet[i].Type>0)&&(planet[i].Settlement==2))
 				{
 					p=&planet[i];
-					if((p->Food<0)&&(AvailibleFood>0)&&(AvailibleFreighters>0))
+					if((p->FoodDemand>0)&&(AvailibleFood>0)&&(AvailibleFreighters>0))
 					{
-						if((AvailibleFood>=-p->Food)&&(AvailibleFreighters>=-p->Food))
+						if((AvailibleFood>=p->FoodDemand)&&(AvailibleFreighters>=p->FoodDemand))
 						{
-							p->Food=0;
-							AvailibleFood-=p->Food;
-							AvailibleFreighters-=p->Food;
+							AvailibleFood-=p->FoodDemand;
+							AvailibleFreighters-=p->FoodDemand;
+							p->FoodDemand=0;
 						}
 						else
 						{
 							if(AvailibleFood>AvailibleFreighters)
 							{
-								p->Food+=AvailibleFreighters;
+								p->FoodDemand-=AvailibleFreighters;
 								AvailibleFood-=AvailibleFreighters;
 								AvailibleFreighters=0;								
 							}
 							else
 							{
-								p->Food+=AvailibleFood;
+								p->FoodDemand-=AvailibleFood;
 								AvailibleFreighters-=AvailibleFood;
 								AvailibleFood=0;
 							}
@@ -1618,31 +666,54 @@ unsigned char player::CanResearch(unsigned char what)
 
 
 			//Aktion
-
-			while((Order(OQueue[OC])==0)&&(OC<1000)) OC++;
-
-
-
-
-			}
-
-
-			for(i=0;i<10;i++)
-				if(Transport[Receive[i].woher].time>0)
+			temp=0;
+			while((OC<MAX_ORDERS)&&(temp==0))
+			{
+				temp=Order(OQueue[OC]);
+//				if((OQueue[OC]>155)&&(OQueue[OC]<174)&&(temp!=2))
+//				{
+//					printf("winke");
+//				}
+				if(temp==2)
 				{
-					Transport[Receive[i].woher].time--;
-					if(Transport[Receive[i].woher].time==0)
-					{
-						AvailibleFreighters+=5;
-						switch(Transport[Receive[i].woher].wer)
-						{
-							case 0:planet[Receive[i].wohin].Farmers++;break;
-							case 1:planet[Receive[i].wohin].Workers++;break;
-							case 2:planet[Receive[i].wohin].Scientists++;break;
-						}
-					}
+					for(i=OC;i<MAX_ORDERS-1;i++) OQueue[i]=OQueue[i+1];
+					OQueue[MAX_ORDERS-1]=ORDER_COUNT-1;
+					temp=0;
 				}
-			
+				else
+					OC++;
+			};
+
+
+
+
+
+
+
+
+
+			for(i=0;i<MAX_TRANSPORT;i++)
+				if(Transport[i].used==1)
+				{
+					if(Transport[i].time>0)
+						Transport[i].time--;
+					else
+					{
+						Transport[i].used=0;
+						Transport[i].time=0;
+						AvailibleFreighters+=5;
+						if(planet[Transport[i].wohin].Population<planet[Transport[i].wohin].maxPop)
+						{
+							planet[Transport[i].wohin].Population++;
+							planet[Transport[i].wohin].Workers++;
+						}
+						Transport[i].wohin=0;
+					}
+
+				}
+
+
+		
 
 				//hungern noch rein
 						
@@ -1668,11 +739,62 @@ unsigned char player::CanResearch(unsigned char what)
 //					bcs+=Commando*10;
 
 				//Weiterfliegen, System als gescoutet vermelden etc.
+				for(i=0;i<MAX_SHIPS;i++)
+					if((Ship[i].Type>0)&&(Ship[i].Destination!=Ship[i].Start)&&(Ship[i].Progress>0))
+					{
+						Ship[i].Progress--; //Antrieb? Transdimensional?
+						if(Ship[i].Progress==0)
+						{
+							Ship[i].Start=Ship[i].Destination;
+							if(Ship[i].Type==2)
+							{
+								for(j=0;j<5;j++)
+									if((System[Ship[i].Start].Object[j]->Type>2)&&(System[Ship[i].Start].Object[j]->Settlement<2))
+									{
+										System[Ship[i].Start].Object[j]->Settlement=2;
+										System[Ship[i].Start].Object[j]->Population=1;
+										System[Ship[i].Start].Object[j]->Farmers=1;
+										Ship[i].Type=0;
+										Ship[i].Destination=0;
+										Ship[i].Start=0;
+										Ship[i].Progress=0;
+										j=5;
+									}
+							} else if(Ship[i].Type==3)
+								for(j=0;j<5;j++)
+									if((System[Ship[i].Start].Object[j]->Type>0)&&(System[Ship[i].Start].Object[j]->Settlement==0))
+									{
+										System[Ship[i].Start].Object[j]->Settlement=1;
+										Ship[i].Type=0;
+										Ship[i].Destination=0;
+										Ship[i].Start=0;
+										Ship[i].Progress=0;
+										j=5;
+									}
 
-//			}
+						}
+					}
 
+			}
+
+//			time speichern! ALso wieviel befehle gebraucht wurden
+
+
+//				evtl noch mehr NUL Befehle rein, sonst is ja immer nur nextp...
+orders=OC;
+time=k;
+points=0;
+//Fitness=AvailibleFreighters/5;
 		for(i=0;i<MAX_PLANETS;i++)
-			Fitness=p->Population*(p->Settlement==2);
+		{
+			Fitness+=planet[i].Population*(planet[i].Settlement==2)*10;
+//			for(j=0;j<MAX_BUILDINGS;j++)
+//				Fitness+=planet[i].Building[j]==1;
+//			Fitness+=bcs;
+		}
+//		for(i=0;i<MAX_ORDERS;i++)
+//			if(OQueue[i]<155) points++;
+//		Fitness+=MAX_ORDERS-points;
 }
 
 
@@ -1684,12 +806,17 @@ void player::Init()
 		picks[i]=0;
 	bcs=50;
 	OC=0;SC=0;PC=0;
-	science=0;Freighter=0;
+	science=0;Freighter=0;Fitness=0;
 	AvailibleFood=0;AvailibleFreighters=0;
-	for(i=0;i<200;i++)
+	for(i=0;i<MAX_TECH;i++)
 		tech[i]=0;
-//	for(i=0;i<MAX_SHIPS;i++)
-//		Ship[i]. ....;
+	for(i=0;i<MAX_SHIPS;i++)
+	{
+		Ship[i].Destination=0;
+		Ship[i].Progress=0;
+		Ship[i].Start=0;
+		Ship[i].Type=0;
+	};
 	
 //		...
 
@@ -1704,23 +831,120 @@ void player::Init()
 
 void player::RestartGalaxy() // aufruf pro durchgang ~~~~~~~~
 {
-		int rcounter,pcounter,counter,i,j,t,s,k;//,temp;
-		counter=0; // Für Leute
-		rcounter=0;
+		unsigned short i,j,t,s,k;
 		unsigned short Home_System;
-//		temp=0;
+		unsigned char a;
+
+		for(i=0;i<MAX_PLANETS;i++)
+		{
+			planet[i].bought=0;
+			planet[i].Type=0;
+			planet[i].Gravitation=0;
+			planet[i].Settlement=0;
+			planet[i].Special=0;
+			planet[i].maxPop=0;
+			planet[i].Size=0;
+		}
+		
+
+		Home_System=5;
+		h=System[Home_System].Object[0];
+
+		for(i=0;i<MAX_SYSTEMS;i++)
+			for(j=0;j<5;j++)
+				System[i].Object[j]=&planet[i*5+j];
 
 		//Alles resetten, auf unerforscht stellen
-
 				//Galaxie erstellen
+		// keine Random Galaxie... mmmh oder doch? NEIN
+		//tjo, da muss eine hin... -_- doch
+
+
+		System[0].x=1;System[0].y=12;sprintf(System[0].Name,"Draconis");System[0].Object[0]->Gravitation=1;System[0].Object[0]->Minerals=2;System[0].Object[0]->Type=4;System[0].Object[0]->Size=3;System[0].Object[0]->system=0;
+															   System[0].Object[1]->Gravitation=1;System[0].Object[1]->Minerals=1;System[0].Object[1]->Type=6;System[0].Object[1]->Size=3;System[0].Object[1]->system=0;
+
+		System[1].x=1;System[1].y=5;sprintf(System[1].Name,"Leng"); System[1].Object[0]->Gravitation=1;System[1].Object[0]->Minerals=3;System[1].Object[0]->Type=8;System[1].Object[0]->Size=2;System[1].Object[0]->system=1;
+														   System[1].Object[1]->Gravitation=1;System[1].Object[1]->Minerals=2;System[1].Object[1]->Type=11;System[1].Object[1]->Size=4;System[1].Object[1]->system=1;
+														   System[1].Object[2]->Gravitation=1;System[1].Object[2]->Minerals=2;System[1].Object[2]->Type=4;System[1].Object[2]->Size=4;System[1].Object[2]->system=1;
+														   System[1].Object[3]->Gravitation=1;System[1].Object[3]->Minerals=2;System[1].Object[3]->Type=1;System[1].Object[3]->Size=0;System[1].Object[3]->system=1;
+
+		System[2].x=2;System[2].y=3;sprintf(System[2].Name,"Bier"); System[2].Object[0]->Gravitation=1;System[2].Object[0]->Minerals=3;System[2].Object[0]->Type=10;System[2].Object[0]->Size=3;System[2].Object[0]->system=2;
+														   System[2].Object[1]->Gravitation=0;System[2].Object[1]->Minerals=0;System[2].Object[1]->Type=9;System[2].Object[1]->Size=3;System[2].Object[1]->system=2;
+														   System[2].Object[2]->Gravitation=1;System[2].Object[2]->Minerals=1;System[2].Object[2]->Type=11;System[2].Object[2]->Size=4;System[2].Object[2]->system=2;
+														   System[2].Object[3]->Gravitation=1;System[2].Object[3]->Minerals=2;System[2].Object[3]->Type=1;System[2].Object[3]->Size=0;System[2].Object[3]->system=2;
+
+		System[3].x=1;System[3].y=12;sprintf(System[3].Name,"Kif");System[3].Object[0]->Gravitation=0;System[3].Object[0]->Minerals=1;System[3].Object[0]->Type=6;System[3].Object[0]->Size=2;System[3].Object[0]->system=3;
+														  System[3].Object[1]->Gravitation=1;System[3].Object[1]->Minerals=0;System[3].Object[1]->Type=7;System[3].Object[1]->Size=5;System[3].Object[1]->system=3;
+
+		System[4].x=5;System[4].y=3;sprintf(System[4].Name,"Sonans");System[4].Object[3]->Gravitation=1;System[4].Object[3]->Minerals=2;System[4].Object[3]->Type=1;System[4].Object[3]->Size=0;System[4].Object[3]->system=4;
+
+		System[5].x=6;System[5].y=1;sprintf(System[5].Name,"Kholdan");System[5].Object[0]->Gravitation=1;System[5].Object[0]->Minerals=2;System[5].Object[0]->Type=5;System[5].Object[0]->Size=4;System[5].Object[0]->system=5;
+														   System[5].Object[1]->Gravitation=0;System[5].Object[1]->Minerals=1;System[5].Object[1]->Type=6;System[5].Object[1]->Size=2;System[5].Object[1]->system=5;
+														   System[5].Object[2]->Gravitation=1;System[5].Object[2]->Minerals=2;System[5].Object[2]->Type=1;System[5].Object[2]->Size=0;System[5].Object[2]->system=5;
+														   System[5].Object[3]->Gravitation=1;System[5].Object[3]->Minerals=2;System[5].Object[3]->Type=1;System[5].Object[3]->Size=0;System[5].Object[3]->system=5;
+		
+		System[6].x=5;System[6].y=10;sprintf(System[6].Name,"Katab");System[6].Object[0]->Gravitation=1;System[6].Object[0]->Minerals=3;System[6].Object[0]->Type=8;System[6].Object[0]->Size=2;System[6].Object[0]->system=6;
+															   System[6].Object[1]->Gravitation=1;System[6].Object[1]->Minerals=3;System[6].Object[1]->Type=10;System[6].Object[1]->Size=4;System[6].Object[1]->system=6;
+
+	System[7].x=7;System[7].y=8;sprintf(System[7].Name,"Zothique");System[7].Object[0]->Gravitation=1;System[7].Object[0]->Minerals=1;System[7].Object[0]->Type=10;System[7].Object[0]->Size=4;System[7].Object[0]->system=7;
+														   System[7].Object[1]->Gravitation=1;System[7].Object[1]->Minerals=1;System[7].Object[1]->Type=8;System[7].Object[1]->Size=5;System[7].Object[1]->system=7;
+														   System[7].Object[2]->Gravitation=1;System[7].Object[2]->Minerals=2;System[7].Object[2]->Type=6;System[7].Object[2]->Size=2;System[7].Object[2]->system=7;
+														   System[7].Object[3]->Gravitation=1;System[7].Object[3]->Minerals=2;System[7].Object[3]->Type=1;System[7].Object[3]->Size=0;System[7].Object[3]->system=7;
+
+	System[8].x=10;System[8].y=9;sprintf(System[8].Name,"Ras");System[8].Object[0]->Gravitation=2;System[8].Object[0]->Minerals=4;System[8].Object[0]->Type=10;System[8].Object[0]->Size=3;System[8].Object[0]->system=8;
+
+	System[9].x=10;System[9].y=7;sprintf(System[9].Name,"Kakari");System[9].Object[0]->Gravitation=1;System[9].Object[0]->Minerals=3;System[9].Object[0]->Type=10;System[9].Object[0]->Size=2;System[9].Object[0]->system=9;
+													   System[9].Object[1]->Gravitation=0;System[9].Object[1]->Minerals=1;System[9].Object[1]->Type=11;System[9].Object[1]->Size=2;System[9].Object[1]->system=9;
+
+	System[10].x=8;System[10].y=6;sprintf(System[10].Name,"Sssla");System[10].Object[0]->Gravitation=1;System[10].Object[0]->Minerals=2;System[10].Object[0]->Type=4;System[10].Object[0]->Size=2;System[10].Object[0]->system=10;
+													        System[10].Object[1]->Gravitation=1;System[10].Object[1]->Minerals=2;System[10].Object[1]->Type=10;System[10].Object[1]->Size=2;System[10].Object[1]->system=10;
+
+	System[11].x=8;System[11].y=2;sprintf(System[11].Name,"Schwan");System[11].Object[0]->Gravitation=1;System[11].Object[0]->Minerals=2;System[11].Object[0]->Type=6;System[11].Object[0]->Size=4;System[11].Object[0]->system=11;
+														System[11].Object[1]->Gravitation=1;System[11].Object[1]->Minerals=2;System[11].Object[1]->Type=5;System[11].Object[1]->Size=3;System[11].Object[1]->system=11;
+														System[11].Object[2]->Gravitation=2;System[11].Object[2]->Minerals=2;System[11].Object[2]->Type=6;System[11].Object[2]->Size=5;System[11].Object[2]->system=11;
+														System[11].Object[3]->Gravitation=1;System[11].Object[3]->Minerals=2;System[11].Object[3]->Type=1;System[11].Object[3]->Size=0;System[11].Object[3]->system=11;
+
+	System[12].x=9;System[12].y=4;sprintf(System[12].Name,"Lyae");System[12].Object[0]->Gravitation=2;System[12].Object[0]->Minerals=4;System[12].Object[0]->Type=8;System[12].Object[0]->Size=2;System[12].Object[0]->system=12;
+													        System[12].Object[1]->Gravitation=1;System[12].Object[1]->Minerals=3;System[12].Object[1]->Type=4;System[12].Object[1]->Size=2;System[12].Object[1]->system=12;
+
+	System[13].x=12;System[13].y=4;sprintf(System[13].Name,"Suji");System[13].Object[0]->Gravitation=1;System[13].Object[0]->Minerals=1;System[13].Object[0]->Type=8;System[13].Object[0]->Size=4;System[13].Object[0]->system=13;
+													        System[13].Object[1]->Gravitation=1;System[13].Object[1]->Minerals=1;System[13].Object[1]->Type=4;System[13].Object[1]->Size=3;System[13].Object[1]->system=13;
+													        System[13].Object[2]->Gravitation=1;System[13].Object[2]->Minerals=2;System[13].Object[2]->Type=1;System[13].Object[2]->Size=2;System[13].Object[2]->system=13;
+
+	System[14].x=13;System[14].y=8;sprintf(System[14].Name,"Orion");System[14].Object[0]->Gravitation=1;System[14].Object[0]->Minerals=4;System[14].Object[0]->Type=3;System[14].Object[0]->Size=5;System[14].Object[0]->system=14;
+
+
+	System[15].x=14;System[15].y=11;sprintf(System[15].Name,"Thiba");System[15].Object[0]->Gravitation=1;System[15].Object[0]->Minerals=2;System[15].Object[0]->Type=8;System[15].Object[0]->Size=2;System[15].Object[0]->system=15;
+														System[15].Object[1]->Gravitation=1;System[15].Object[1]->Minerals=2;System[15].Object[1]->Type=8;System[15].Object[1]->Size=2;System[15].Object[1]->system=15;
+
+	System[16].x=14;System[16].y=9;sprintf(System[16].Name,"Nazin");System[16].Object[0]->Gravitation=1;System[16].Object[0]->Minerals=2;System[16].Object[0]->Type=4;System[16].Object[0]->Size=3;System[16].Object[0]->system=16;
+													        System[16].Object[1]->Gravitation=1;System[16].Object[1]->Minerals=1;System[16].Object[1]->Type=1;System[16].Object[1]->Size=0;System[16].Object[1]->system=16;
+													        System[16].Object[2]->Gravitation=2;System[16].Object[2]->Minerals=4;System[16].Object[2]->Type=7;System[16].Object[2]->Size=4;System[16].Object[2]->system=16;
+
+	System[17].x=15;System[17].y=6;sprintf(System[17].Name,"Yian");System[17].Object[0]->Gravitation=1;System[17].Object[0]->Minerals=2;System[17].Object[0]->Type=11;System[17].Object[0]->Size=3;System[17].Object[0]->system=17;
+														System[17].Object[1]->Gravitation=0;System[17].Object[1]->Minerals=2;System[17].Object[1]->Type=7;System[17].Object[1]->Size=1;System[17].Object[1]->system=17;
+														System[17].Object[2]->Gravitation=1;System[17].Object[2]->Minerals=2;System[17].Object[2]->Type=1;System[17].Object[2]->Size=0;System[17].Object[2]->system=17;
+														System[17].Object[3]->Gravitation=1;System[17].Object[3]->Minerals=2;System[17].Object[3]->Type=1;System[17].Object[3]->Size=0;System[17].Object[3]->system=17;
+
+	System[18].x=12;System[18].y=6;sprintf(System[18].Name,"Xanthus");System[18].Object[0]->Gravitation=1;System[18].Object[0]->Minerals=2;System[18].Object[0]->Type=8;System[18].Object[0]->Size=2;System[18].Object[0]->system=18;
+															System[18].Object[1]->Gravitation=1;System[18].Object[1]->Minerals=1;System[18].Object[1]->Type=5;System[18].Object[1]->Size=3;System[18].Object[1]->system=18;
+
+
+
+//Special noch rein
+
+
 		for(i=0;i<MAX_SYSTEMS;i++)
 		{
-			System[i].x=rand()%MAX_X;
-			System[i].y=rand()%MAX_Y;
+//			System[i].x=rand()%MAX_X;
+//			System[i].y=rand()%MAX_Y;
 			for(j=0;j<5;j++)
 			{
 				p=System[i].Object[j];
-				p->Type=rand()%13; // noch anpassen, gaia unwahrscheinlicher etc.
+				if(h==p)
+					p->Type=PL_TERRAN;
+//				else
+//				p->Type=rand()%13; // noch anpassen, gaia unwahrscheinlicher etc.
 				
 				
 				if(p->Type>2)
@@ -1734,11 +958,21 @@ void player::RestartGalaxy() // aufruf pro durchgang ~~~~~~~~
 					}
 					t=p->Type;
 				
-					p->Size=rand()%5+1;
-					if(rand()%20==0)
+					if(h==p)
 					{
-						p->Special=rand()%4+1; //Splinter mal weglassen
-					} else p->Special=0;	
+						if(picks[P_LARGE_HOMEWORLD]==1)
+							p->Size=4;
+						else p->Size=3;
+					}
+//					else
+//					{
+//						p->Size=rand()%5+1;
+//						if(rand()%20==0)
+//						{
+//							p->Special=rand()%4+1; //Splinter mal weglassen
+//						} else p->Special=0;	
+//					}
+					p->Special=0;
 					s=p->Size;
 					t=p->Type;
 
@@ -1785,8 +1019,8 @@ void player::RestartGalaxy() // aufruf pro durchgang ~~~~~~~~
 						p->maxPop=0;							
 					}
 
-				for(k=0;k<10;j++)
-					p->BQueue[k]=0;
+				for(a=0;a<10;a++)
+					p->SQ(a,0);
 				for(k=0;k<MAX_BUILDINGS;k++)
 					p->Building[k]=0;
 				p->Farmers=0;
@@ -1798,32 +1032,45 @@ void player::RestartGalaxy() // aufruf pro durchgang ~~~~~~~~
 				p->Money=0;
 				p->IndustryDemand=0;
 				p->FoodDemand=0;
-				p->Gravitation=rand()%3;
-				p->Minerals=rand()%5;
+
+//				p->Gravitation=rand()%3;
+//				p->Minerals=rand()%5;
+				p->bought=0;
+				p->checked=0;
 				p->Settlement=0;
 				p->progress=0;
-				p->System=i;
+				p->system=i;
 				p->overpop=0;
 				p->Population=0;
 				//planet[i].Gravitation=size, minerals
 				//huge 50%, large 25%, normal 10%, small 5%
 				//tiny 50%, small 25%, normal 10%, large 5%
 				//urich -20%, 
+			}
 		}
 		//Heimatwelt erstellen*/
-		Home_System=rand()%MAX_SYSTEMS;
-		p=System[Home_System].Object[rand()%5];
-		p->Building[B_GOVERNMENT_CENTER]=1;
-		p->Building[B_MARINE_BARRACKS]=1;
-		p->Building[B_STAR_BASE]=1;
+		h->Building[B_GOVERNMENT_CENTER]=1;
+		h->Building[B_MARINE_BARRACKS]=1;
+		h->Building[B_STAR_BASE]=1;
+		h->Settlement=2;
+		h->bought=0;
+		h->Population=8;
+		h->Farmers=3;
+		h->Workers=3;
+		h->Scientists=2;
 		bcs=50;
 //		if(Game_Avg_Tech)
 			{
-				tech[T_NUCLEAR_FUSION]=1;
+				tech[T_NUCLEAR_FISSION]=1;
+				Area[ScienceArea[T_NUCLEAR_FISSION].Field][ScienceArea[T_NUCLEAR_FISSION].Progress]=1;
 				tech[T_COLD_FUSION]=1;
+				Area[ScienceArea[T_COLD_FUSION].Field][ScienceArea[T_COLD_FUSION].Progress]=1;
 				tech[T_CHEMISTRY]=1;
+				Area[ScienceArea[T_CHEMISTRY].Field][ScienceArea[T_CHEMISTRY].Progress]=1;
 				tech[T_ELECTRONIC_COMPUTER]=1;
+				Area[ScienceArea[T_ELECTRONIC_COMPUTER].Field][ScienceArea[T_ELECTRONIC_COMPUTER].Progress]=1;
 				tech[T_PHYSICS]=1;
+				Area[ScienceArea[T_PHYSICS].Field][ScienceArea[T_PHYSICS].Progress]=1;
 				//Schiffe!
 			}
 			// kein Advanced Tech... bringt nix
@@ -1832,168 +1079,123 @@ void player::RestartGalaxy() // aufruf pro durchgang ~~~~~~~~
 //						System[j].Scouted[?]=1;
 
 		if(picks[P_LARGE_HOMEWORLD])
-			p->Size=4;
-		else p->Size=3;
+			h->Size=4;
+		else h->Size=3;
 	
 		if(picks[P_RICH_HOMEWORLD])
-			p->Minerals=3;
+			h->Minerals=3;
 		else
 		if(picks[P_POOR_HOMEWORLD])
-			p->Minerals=1;
+			h->Minerals=1;
 		else
-			p->Minerals=2;
+			h->Minerals=2;
 
 		if(picks[P_ARTIFACTS_HOMEWORLD])
-			p->Special=3;
-
+			h->Special=3;
+		else h->Special=0;
+		
 		if(picks[P_HIGHG])
-			p->Gravitation=2;
+			h->Gravitation=2;
 		else
 		if(picks[P_LOWG])
-			p->Gravitation=0;
-		else p->Gravitation=1;
+			h->Gravitation=0;
+		else h->Gravitation=1;
 
 		if(picks[P_AQUATIC])
-			p->Type=5;
+			h->Type=5;
 		else
-			p->Type=4;
-
-			
-			}
-
-
-
+			h->Type=4;
+		Ship[0].Destination=h->system;
+		Ship[0].Progress=0;
+		Ship[0].Start=h->system;
+		Ship[0].Type=3;
 
 };
 
 
-void player::Create()
+void player::TryPick(unsigned short t)
 {
-	unsigned short i,p,m,t;
-	picks
-	unsigned char OQueue[1000];
-	unsigned char SQueue[50];
-	
-	
-	muss mit add remove gemacht werden
-		und halt dann immer chekcen obs passt
-
-	while(
-	{
-		t=rand()%MAX_PICKS;
-
-#define P_05GROWTH 22
-#define P_15GROWTH 23
-#define P_20GROWTH 24
-#define P_15FOOD 25
-#define P_30FOOD 26
-#define P_40FOOD 27
-#define P_20INDUSTRY 28
-#define P_40INDUSTRY 29
-#define P_50INDUSTRY 30
-#define P_20SCIENCE 31
-#define P_40SCIENCE 32
-#define P_50SCIENCE 33
-#define P_05BCS 34
-#define P_15BCS 35
-#define P_20BCS 36
-#define P_08ATTACK 37
-#define P_12ATTACK 38
-#define P_15ATTACK 39
-#define P_08DEFENSE 40
-#define P_12DEFENSE 41
-#define P_15DEFENSE 42
-#define P_09GROUND 43
-#define P_11GROUND 44
-#define P_12GROUND 45
-#define P_09SPY 46
-#define P_11SPY 47
-#define P_12SPY 48
-#define P_CREATIVE 49
-#define P_UNCREATIVE 50
-#define P_REPULSIVE 51
-
-			switch(t)
-			{
+	switch(t)
+		{
 
 			case P_FEUDALISM:
-				if((Picks[P_FEUDALISM]==0)&&(m<=6))
+				if((picks[P_FEUDALISM]==0)&&(mi<=6))
 				{
-					m+=4;
-					Picks[P_FEUDALISM]=1;
+					mi+=4;
+					picks[P_FEUDALISM]=1;
 
-					if(Picks[P_DICTATORSHIP]==1)
-						Picks[P_DICTATORSHIP]=0;
+					if(picks[P_DICTATORSHIP]==1)
+						picks[P_DICTATORSHIP]=0;
 					else
-					if(Picks[P_DEMOCRACY]==1)
+					if(picks[P_DEMOCRACY]==1)
 					{
-						Picks[P_DEMOCRACY]=0;
-						p-=7;
+						picks[P_DEMOCRACY]=0;
+						pl-=7;
 					}
 					else
-					if(Picks[P_UNIFICATION]==1)
+					if(picks[P_UNIFICATION]==1)
 					{
-						Picks[P_UNIFICATION]=0;
-						p-=6;
+						picks[P_UNIFICATION]=0;
+						pl-=6;
 					}
 				};break;
 			case P_DICTATORSHIP:
-				if(Picks[P_DICTATORSHIP]==0)
+				if(picks[P_DICTATORSHIP]==0)
 				{
-					Picks[P_DICTATORSHIP]=1;
-					if(Picks[P_FEUDALISM]==1)
+					picks[P_DICTATORSHIP]=1;
+					if(picks[P_FEUDALISM]==1)
 					{
-						m-=4;
-						Picks[P_FEUDALISM]=0;
+						mi-=4;
+						picks[P_FEUDALISM]=0;
 					}
 					else 
-					if(Picks[P_DEMOCRACY]==1)
+					if(picks[P_DEMOCRACY]==1)
 					{
 						p-=7;
-						Picks[P_DEMOCRACY]=0;
+						picks[P_DEMOCRACY]=0;
 					}					
-					if(Picks[P_UNIFICATION]==1)
+					if(picks[P_UNIFICATION]==1)
 					{
-						p-=6;
-						Picks[P_UNIFICATION]=0;
+						pl-=6;
+						picks[P_UNIFICATION]=0;
 					}
 				};break;
 			case P_DEMOCRACY:
-				if((Picks[P_DEMOCRACY]==0)&&(p+(-6*Picks[P_UNIFICATION])<=3+m+(-4*Picks[P_FEUDALISM]))
+				if((picks[P_DEMOCRACY]==0)&&(pl+(-6*picks[P_UNIFICATION])<=3+mi+(-4*picks[P_FEUDALISM])))
 				{
-					p+=7;
-					Picks[P_DEMOCRACY]=1;
-					if(Picks[P_FEUDALISM]==1)
+					pl+=7;
+					picks[P_DEMOCRACY]=1;
+					if(picks[P_FEUDALISM]==1)
 					{
-						m-=4;
-						Picks[P_FEUDALISM]=0;
+						mi-=4;
+						picks[P_FEUDALISM]=0;
 					}
 					else 
-					if(Picks[P_DICTATORSHIP]==1)
-						Picks[P_DICTATORSHIP]=0;
-					if(Picks[P_UNIFICATION]==1)
+					if(picks[P_DICTATORSHIP]==1)
+						picks[P_DICTATORSHIP]=0;
+					if(picks[P_UNIFICATION]==1)
 					{
-						p-=6;
-						Picks[P_UNIFICATION]=0;
+						pl-=6;
+						picks[P_UNIFICATION]=0;
 					}
 				};break;
 			case P_UNIFICATION:
-				if((Picks[P_UNIFICATION]==0)&&(p+(-7*Picks[P_DEMOCRACY])<=4+m+(-4*Picks[P_FEUDALISM]))
+				if((picks[P_UNIFICATION]==0)&&(pl+(-7*picks[P_DEMOCRACY])<=4+mi+(-4*picks[P_FEUDALISM])))
 				{
-					p+=6;
-					Picks[P_UNIFICATION]=1;
-					if(Picks[P_FEUDALISM]==1)
+					pl+=6;
+					picks[P_UNIFICATION]=1;
+					if(picks[P_FEUDALISM]==1)
 					{
-						m-=4;
-						Picks[P_FEUDALISM]=0;
+						mi-=4;
+						picks[P_FEUDALISM]=0;
 					}
 					else 
-					if(Picks[P_DICTATORSHIP]==1)
-						Picks[P_DICTATORSHIP]=0;
-					if(Picks[P_DEMOCRACY]==1)
+					if(picks[P_DICTATORSHIP]==1)
+						picks[P_DICTATORSHIP]=0;
+					if(picks[P_DEMOCRACY]==1)
 					{
-						p-=7;
-						Picks[P_DEMOCRACY]=0;
+						pl-=7;
+						picks[P_DEMOCRACY]=0;
 					}
 				};break;						  
 
@@ -2004,467 +1206,1282 @@ void player::Create()
 			case P_ARTIFACTS_HOMEWORLD:
 			case P_TOLERANT:
 			case P_LUCK:
-			case P_CHARM:
 			case P_TELEPATH:
 			case P_OMNISCIENT:
 			case P_FANTASTIC_TRADER:
 			case P_TRANS_DIMENSIONAL:
-				if(Picks[t]==1)
+				if(picks[t]==1)
 				{
-					p-=PickCosts[t];
-					Picks[t]=0;
+					pl-=PickCosts[t];
+					picks[t]=0;
 				}
 				else
-				if(p<=10-PickCosts[t]+m)
+				if(pl<=10-PickCosts[t]+mi)
 				{
-					p+=PickCosts[t];
-					Picks[t]=1;
+					pl+=PickCosts[t];
+					picks[t]=1;
 				};break;
 
 			case P_LOWG:
-				if(Picks[P_LOWG]==1)
+				if(picks[P_LOWG]==1)
 				{
-					m+=PickCosts[P_LOWG];
-					Picks[P_LOWG]=0;
+					mi+=PickCosts[P_LOWG];
+					picks[P_LOWG]=0;
 				}
 				else
-				if((Picks[P_HIGHG]==1)&&(m<=5)
+				if((picks[P_HIGHG]==1)&&(mi<=5))
 				{
-					p-=PickCosts[P_HIGHG];
-					m-=PickCosts[P_LOWG];
-					Picks[P_HIGHG]=0;
-					Picks[P_LOWG]=1;
+					pl-=PickCosts[P_HIGHG];
+					mi-=PickCosts[P_LOWG];
+					picks[P_HIGHG]=0;
+					picks[P_LOWG]=1;
 				}
 				else
-				if(m<=5)
+				if(mi<=5)
 				{
-					m-=PickCosts[P_LOWG];
-					Picks[P_LOWG]=1;
+					mi-=PickCosts[P_LOWG];
+					picks[P_LOWG]=1;
 				};break;
 			case P_HIGHG:
-				if(Picks[P_HIGHG]==1)
+				if(picks[P_HIGHG]==1)
 				{
-					p-=PickCosts[P_HIGHG];
-					Picks[P_HIGHG]=0;
+					pl-=PickCosts[P_HIGHG];
+					picks[P_HIGHG]=0;
 				}
 				else
-				if((Picks[P_LOWG]==1)&&(p+1<=m)
+				if((picks[P_LOWG]==1)&&(pl+1<=mi))
 				{
-					p+=PickCosts[P_HIGHG];
-					m+=PickCosts[P_LOWG];
-					Picks[P_HIGHG]=1;
-					Picks[P_LOWG]=0;
+					pl+=PickCosts[P_HIGHG];
+					mi+=PickCosts[P_LOWG];
+					picks[P_HIGHG]=1;
+					picks[P_LOWG]=0;
 				}
 				else
-				if(p<=4+m)
+				if(pl<=4+mi)
 				{
-					p+=PickCosts[P_HIGHG];
-					Picks[P_HIGHG]=1;
+					pl+=PickCosts[P_HIGHG];
+					picks[P_HIGHG]=1;
 				};break;
 
 			case P_RICH_HOMEWORLD:
-				if(Picks[P_RICH_HOMEWORLD]==1)
+				if(picks[P_RICH_HOMEWORLD]==1)
 				{
-					p-=PickCosts[P_RICH_HOMEWORLD];
-					Picks[P_RICH_HOMEWORLD]=0;
+					pl-=PickCosts[P_RICH_HOMEWORLD];
+					picks[P_RICH_HOMEWORLD]=0;
 				}
 				else
-				if((Picks[P_POOR_HOMEWORLD]==1)&&(p<=7+m)
+				if((picks[P_POOR_HOMEWORLD]==1)&&(pl<=7+mi))
 				{
-					p+=PickCosts[P_RICH_HOMEWORLD];
-					m+=PickCosts[P_POOR_HOMEWORLD];
-					Picks[P_RICH_HOMEWORLD]=1;
-					Picks[P_POOR_HOMEWORLD]=0;
+					pl+=PickCosts[P_RICH_HOMEWORLD];
+					mi+=PickCosts[P_POOR_HOMEWORLD];
+					picks[P_RICH_HOMEWORLD]=1;
+					picks[P_POOR_HOMEWORLD]=0;
 				}
 				else
-				if(p<=8+m)
+				if(pl<=8+mi)
 				{
-					p+=PickCosts[P_RICH_HOMEWORLD];
-					Picks[P_RICH_HOMEWORLD]=1;
+					pl+=PickCosts[P_RICH_HOMEWORLD];
+					picks[P_RICH_HOMEWORLD]=1;
 				};break;
 			case P_POOR_HOMEWORLD:
-				if(Picks[P_POOR_HOMEWORLD]==1)
+				if(picks[P_POOR_HOMEWORLD]==1)
 				{
-					m+=PickCosts[P_POOR_HOMEWORLD];
-					Picks[P_POOR_HOMEWORLD]=0;
+					mi+=PickCosts[P_POOR_HOMEWORLD];
+					picks[P_POOR_HOMEWORLD]=0;
 				}
 				else
-				if((Picks[P_RICH_HOMEWORLD]==1)&&(m<=9)
+				if((picks[P_RICH_HOMEWORLD]==1)&&(mi<=9))
 				{
-					p-=PickCosts[P_RICH_HOMEWORLD];
-					m-=PickCosts[P_POOR_HOMEWORLD];
-					Picks[P_RICH_HOMEWORLD]=0;
-					Picks[P_POOR_HOMEWORLD]=0;
+					pl-=PickCosts[P_RICH_HOMEWORLD];
+					mi-=PickCosts[P_POOR_HOMEWORLD];
+					picks[P_RICH_HOMEWORLD]=0;
+					picks[P_POOR_HOMEWORLD]=0;
 				}
 				else
-				if(m<=9)
+				if(mi<=9)
 				{
-					m-=PickCosts[P_POOR_HOMEWORLD];
-					Picks[P_POOR_HOMEWORLD]=1;
+					mi-=PickCosts[P_POOR_HOMEWORLD];
+					picks[P_POOR_HOMEWORLD]=1;
 				};break;
 
 			case P_CYBERNETIC:
-				if(Picks[P_CYBERNETIC]==1)
+				if(picks[P_CYBERNETIC]==1)
 				{
-					p-=PickCosts[P_CYBERNETIC];
-					Picks[P_CYBERNETIC]=0;
+					pl-=PickCosts[P_CYBERNETIC];
+					picks[P_CYBERNETIC]=0;
 				}
 				else
-				if(Picks[P_LITHOVORE]==1)
+				if(picks[P_LITHOVORE]==1)
 				{
-					p+=6;
-					Picks[P_CYBERNETIC]=1;
-					Picks[P_LITHOVORE]=0;
+					pl+=6;
+					picks[P_CYBERNETIC]=1;
+					picks[P_LITHOVORE]=0;
 				}
 				else
-				if(p<=6+m)
+				if(pl<=6+mi)
 				{
-					p+=PickCosts[P_CYBERNETIC];
-					Picks[P_CYBERNETIC]=1;
+					pl+=PickCosts[P_CYBERNETIC];
+					picks[P_CYBERNETIC]=1;
 				};break;
 			case P_LITHOVORE:
-				if(Picks[P_LITHOVORE]==1)
+				if(picks[P_LITHOVORE]==1)
 				{
-					p+=PickCosts[P_LITHOVORE];
-					Picks[P_LITHOVORE]=0;
+					pl+=PickCosts[P_LITHOVORE];
+					picks[P_LITHOVORE]=0;
 				}
 				else
 				{
-					if(Picks[P_CYBERNETIC]==1)
+					if(picks[P_CYBERNETIC]==1)
 					{
-						if((Picks[P_15FOOD]==1)&&(p<=m-9))
+						if((picks[P_15FOOD]==1)&&(pl<=mi-9))
 						{
-							m+=PickCosts[P_15FOOD];
-							p-=PickCosts[P_CYBERNETIC];
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_15FOOD]=0;
-							Picks[P_CYBERNETIC]=0;
-							Picks[P_LITHOVORE]=1;
+							mi+=PickCosts[P_15FOOD];
+							pl-=PickCosts[P_CYBERNETIC];
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_15FOOD]=0;
+							picks[P_CYBERNETIC]=0;
+							picks[P_LITHOVORE]=1;
 						}
 						else 
-						if((Picks[P_30FOOD]==1)&&(p<=m-2))
+						if((picks[P_30FOOD]==1)&&(pl<=mi-2))
 						{
-							p-=PickCosts[P_30FOOD];
-							p-=PickCosts[P_CYBERNETIC];
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_30FOOD]=0;
-							Picks[P_CYBERNETIC]=0;
-							Picks[P_LITHOVORE]=1;
+							pl-=PickCosts[P_30FOOD];
+							pl-=PickCosts[P_CYBERNETIC];
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_30FOOD]=0;
+							picks[P_CYBERNETIC]=0;
+							picks[P_LITHOVORE]=1;
 						}
 						else 
-						if((Picks[P_40FOOD]==1)&&(p<=m+1))
+						if((picks[P_40FOOD]==1)&&(pl<=mi+1))
 						{
-							p-=PickCosts[P_40FOOD];
-							p-=PickCosts[P_CYBERNETIC];
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_40FOOD]=0;
-							Picks[P_CYBERNETIC]=0;
-							Picks[P_LITHOVORE]=1;
+							pl-=PickCosts[P_40FOOD];
+							pl-=PickCosts[P_CYBERNETIC];
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_40FOOD]=0;
+							picks[P_CYBERNETIC]=0;
+							picks[P_LITHOVORE]=1;
 						}
-						else if(p<=m-6)
+						else if(pl<=mi-6)
 						{
-							p-=PickCosts[P_CYBERNETIC];
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_CYBERNETIC]=0;
-							Picks[P_LITHOVORE]=1;
+							pl-=PickCosts[P_CYBERNETIC];
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_CYBERNETIC]=0;
+							picks[P_LITHOVORE]=1;
 						}
 					}
 					else
 					{
-						if((Picks[P_15FOOD]==1)&&(p<=m-3))
+						if((picks[P_15FOOD]==1)&&(pl<=mi-3))
 						{
-							m+=PickCosts[P_15FOOD];
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_15FOOD]=0;
-							Picks[P_LITHOVORE]=1;
+							mi+=PickCosts[P_15FOOD];
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_15FOOD]=0;
+							picks[P_LITHOVORE]=1;
 						}
 						else 
-						if((Picks[P_30FOOD]==1)&&(p<=m+4))
+						if((picks[P_30FOOD]==1)&&(pl<=mi+4))
 						{
-							p-=PickCosts[P_30FOOD];
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_30FOOD]=0;
-							Picks[P_LITHOVORE]=1;
+							pl-=PickCosts[P_30FOOD];
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_30FOOD]=0;
+							picks[P_LITHOVORE]=1;
 						}
 						else 
-						if((Picks[P_40FOOD]==1)&&(p<=m+7))
+						if((picks[P_40FOOD]==1)&&(pl<=mi+7))
 						{
-							p-=PickCosts[P_40FOOD];
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_40FOOD]=0;
-							Picks[P_LITHOVORE]=1;
+							pl-=PickCosts[P_40FOOD];
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_40FOOD]=0;
+							picks[P_LITHOVORE]=1;
 						}
-						else if(p<=m)
+						else if(pl<=mi)
 						{
-							p+=PickCosts[P_LITHOVORE];
-							Picks[P_LITHOVORE]=1;
+							pl+=PickCosts[P_LITHOVORE];
+							picks[P_LITHOVORE]=1;
 						}
 					}
 				};break;
 
+			case P_CREATIVE:
+				if((picks[P_UNCREATIVE]==1)&&(pl<=mi-2))
+				{
+					mi+=PickCosts[P_UNCREATIVE];
+					pl+=PickCosts[P_CREATIVE];
+					picks[P_UNCREATIVE]=0;
+					picks[P_CREATIVE]=1;
+				}
+				else if(pl<=mi+2)
+				{
+					pl+=PickCosts[P_CREATIVE];
+					picks[P_CREATIVE]=1;
+				};break;
+
+			case P_UNCREATIVE:
+				if((picks[P_CREATIVE]==1)&&(mi<=6))
+				{
+					mi-=PickCosts[P_UNCREATIVE];
+					pl-=PickCosts[P_CREATIVE];
+					picks[P_CREATIVE]=0;
+					picks[P_UNCREATIVE]=1;
+				}
+				else if(mi<=6)
+				{
+					mi-=PickCosts[P_UNCREATIVE];
+					picks[P_UNCREATIVE]=1;
+				};break;
+
+			case P_CHARM:
+				if((picks[P_REPULSIVE]==1)&&(pl<=mi+1))
+				{
+					mi+=PickCosts[P_REPULSIVE];
+					pl+=PickCosts[P_CHARM];
+					picks[P_REPULSIVE]=0;
+					picks[P_CHARM]=1;
+				}
+				else if(pl<=mi+7)
+				{
+					pl+=PickCosts[P_CHARM];
+					picks[P_CHARM]=1;
+				};break;
+
+			case P_REPULSIVE:
+				if((picks[P_CHARM]==1)&&(mi<=4))
+				{
+					mi-=PickCosts[P_REPULSIVE];
+					pl-=PickCosts[P_CHARM];
+					picks[P_CHARM]=0;
+					picks[P_REPULSIVE]=1;
+				}
+				else if(mi<=4)
+				{
+					mi-=PickCosts[P_REPULSIVE];
+					picks[P_REPULSIVE]=1;
+				};break;
+
+			case P_05GROWTH:
+				if(picks[P_05GROWTH]==1)
+				{
+					mi+=PickCosts[P_05GROWTH];
+					picks[P_05GROWTH]=0;
+				}
+				else
+				if(mi<=7)
+				{
+					mi-=PickCosts[P_05GROWTH];
+					picks[P_05GROWTH]=1;
+					if(picks[P_15GROWTH]==1)
+					{
+						pl-=PickCosts[P_15GROWTH];
+						picks[P_15GROWTH]=0;
+					}
+					else 
+					if(picks[P_20GROWTH]==1)
+					{
+						pl-=PickCosts[P_20GROWTH];
+						picks[P_20GROWTH]=0;
+					}
+				};break;
+			case P_15GROWTH:
+				if(picks[P_15GROWTH]==1)
+				{
+					pl-=PickCosts[P_15GROWTH];
+					picks[P_15GROWTH]=0;
+				}
+				else
+				if((picks[P_05GROWTH]==1)&&(pl<=mi+4))
+				{
+					mi+=PickCosts[P_05GROWTH];
+					pl+=PickCosts[P_15GROWTH];
+					picks[P_15GROWTH]=1;
+					picks[P_05GROWTH]=0;
+				}
+				else
+				if(picks[P_20GROWTH]==1)
+				{
+					pl+=PickCosts[P_15GROWTH];
+					pl-=PickCosts[P_20GROWTH];
+					picks[P_15GROWTH]=1;
+					picks[P_20GROWTH]=0;
+				}
+				else 
+				if(pl<=mi+7)
+				{
+					pl+=PickCosts[P_15GROWTH];
+					picks[P_15GROWTH]=1;
+				};break;
+			case P_20GROWTH:
+				if(picks[P_20GROWTH]==1)
+				{
+					pl-=PickCosts[P_20GROWTH];
+					picks[P_20GROWTH]=0;
+				}
+				else
+				if((picks[P_05GROWTH]==1)&&(pl<=mi+1))
+				{
+					mi+=PickCosts[P_05GROWTH];
+					pl+=PickCosts[P_20GROWTH];
+					picks[P_20GROWTH]=1;
+					picks[P_05GROWTH]=0;
+				}
+				else
+				if((picks[P_15GROWTH]==1)&&(pl<=mi+7))
+				{
+					pl+=PickCosts[P_20GROWTH];
+					pl-=PickCosts[P_15GROWTH];
+					picks[P_20GROWTH]=1;
+					picks[P_15GROWTH]=0;
+				}
+				else 
+				if(pl<=mi+4)
+				{
+					pl+=PickCosts[P_20GROWTH];
+					picks[P_20GROWTH]=1;
+				};break;
+
+			case P_20INDUSTRY:
+				if(picks[P_20INDUSTRY]==1)
+				{
+					mi+=PickCosts[P_20INDUSTRY];
+					picks[P_20INDUSTRY]=0;
+				}
+				else
+				if(mi<=7)
+				{
+					mi-=PickCosts[P_20INDUSTRY];
+					picks[P_20INDUSTRY]=1;
+					if(picks[P_40INDUSTRY]==1)
+					{
+						pl-=PickCosts[P_40INDUSTRY];
+						picks[P_40INDUSTRY]=0;
+					}
+					else 
+					if(picks[P_50INDUSTRY]==1)
+					{
+						pl-=PickCosts[P_50INDUSTRY];
+						picks[P_50INDUSTRY]=0;
+					}
+				};break;
+			case P_40INDUSTRY:
+				if(picks[P_40INDUSTRY]==1)
+				{
+					pl-=PickCosts[P_40INDUSTRY];
+					picks[P_40INDUSTRY]=0;
+				}
+				else
+				if((picks[P_20INDUSTRY]==1)&&(pl<=mi+4))
+				{
+					mi+=PickCosts[P_20INDUSTRY];
+					pl+=PickCosts[P_40INDUSTRY];
+					picks[P_40INDUSTRY]=1;
+					picks[P_20INDUSTRY]=0;
+				}
+				else
+				if(picks[P_50INDUSTRY]==1)
+				{
+					pl+=PickCosts[P_40INDUSTRY];
+					pl-=PickCosts[P_50INDUSTRY];
+					picks[P_40INDUSTRY]=1;
+					picks[P_50INDUSTRY]=0;
+				}
+				else 
+				if(pl<=mi+7)
+				{
+					pl+=PickCosts[P_40INDUSTRY];
+					picks[P_40INDUSTRY]=1;
+				};break;
+			case P_50INDUSTRY:
+				if(picks[P_50INDUSTRY]==1)
+				{
+					pl-=PickCosts[P_50INDUSTRY];
+					picks[P_50INDUSTRY]=0;
+				}
+				else
+				if((picks[P_20INDUSTRY]==1)&&(pl<=mi+1))
+				{
+					mi+=PickCosts[P_20INDUSTRY];
+					pl+=PickCosts[P_50INDUSTRY];
+					picks[P_50INDUSTRY]=1;
+					picks[P_20INDUSTRY]=0;
+				}
+				else
+				if((picks[P_40INDUSTRY]==1)&&(pl<=mi+7))
+				{
+					pl+=PickCosts[P_50INDUSTRY];
+					pl-=PickCosts[P_40INDUSTRY];
+					picks[P_50INDUSTRY]=1;
+					picks[P_40INDUSTRY]=0;
+				}
+				else 
+				if(pl<=mi+4)
+
+				{
+					pl+=PickCosts[P_50INDUSTRY];
+					picks[P_50INDUSTRY]=1;
+				};break;
+
+
+			case P_20SCIENCE:
+				if(picks[P_20SCIENCE]==1)
+				{
+					mi+=PickCosts[P_20SCIENCE];
+					picks[P_20SCIENCE]=0;
+				}
+				else
+				if(mi<=7)
+				{
+					mi-=PickCosts[P_20SCIENCE];
+					picks[P_20SCIENCE]=1;
+					if(picks[P_40SCIENCE]==1)
+					{
+						pl-=PickCosts[P_40SCIENCE];
+						picks[P_40SCIENCE]=0;
+					}
+					else 
+					if(picks[P_50SCIENCE]==1)
+					{
+						pl-=PickCosts[P_50SCIENCE];
+						picks[P_50SCIENCE]=0;
+					}
+				};break;
+			case P_40SCIENCE:
+				if(picks[P_40SCIENCE]==1)
+				{
+					pl-=PickCosts[P_40SCIENCE];
+					picks[P_40SCIENCE]=0;
+				}
+				else
+				if((picks[P_20SCIENCE]==1)&&(pl<=mi+4))
+				{
+					mi+=PickCosts[P_20SCIENCE];
+					pl+=PickCosts[P_40SCIENCE];
+					picks[P_40SCIENCE]=1;
+					picks[P_20SCIENCE]=0;
+				}
+				else
+				if(picks[P_50SCIENCE]==1)
+				{
+					pl+=PickCosts[P_40SCIENCE];
+					pl-=PickCosts[P_50SCIENCE];
+					picks[P_40SCIENCE]=1;
+					picks[P_50SCIENCE]=0;
+				}
+				else 
+				if(pl<=mi+7)
+				{
+					pl+=PickCosts[P_40SCIENCE];
+					picks[P_40SCIENCE]=1;
+				};break;
+			case P_50SCIENCE:
+				if(picks[P_50SCIENCE]==1)
+				{
+					pl-=PickCosts[P_50SCIENCE];
+					picks[P_50SCIENCE]=0;
+				}
+				else
+				if((picks[P_20SCIENCE]==1)&&(pl<=mi+1))
+				{
+					mi+=PickCosts[P_20SCIENCE];
+					pl+=PickCosts[P_50SCIENCE];
+					picks[P_50SCIENCE]=1;
+					picks[P_20SCIENCE]=0;
+				}
+				else
+				if((picks[P_40SCIENCE]==1)&&(pl<=mi+7))
+				{
+					pl+=PickCosts[P_50SCIENCE];
+					pl-=PickCosts[P_40SCIENCE];
+					picks[P_50SCIENCE]=1;
+					picks[P_40SCIENCE]=0;
+				}
+				else 
+				if(pl<=mi+4)
+				{
+					pl+=PickCosts[P_50SCIENCE];
+					picks[P_50SCIENCE]=1;
+				};break;
+
+
+			case P_09SPY:
+				if(picks[P_09SPY]==1)
+				{
+					mi+=PickCosts[P_09SPY];
+					picks[P_09SPY]=0;
+				}
+				else
+				if(mi<=7)
+				{
+					mi-=PickCosts[P_09SPY];
+					picks[P_09SPY]=1;
+					if(picks[P_11SPY]==1)
+					{
+						pl-=PickCosts[P_11SPY];
+						picks[P_11SPY]=0;
+					}
+					else 
+					if(picks[P_12SPY]==1)
+					{
+						pl-=PickCosts[P_12SPY];
+						picks[P_12SPY]=0;
+					}
+				};break;
+			case P_11SPY:
+				if(picks[P_11SPY]==1)
+				{
+					pl-=PickCosts[P_11SPY];
+					picks[P_11SPY]=0;
+				}
+				else
+				if((picks[P_09SPY]==1)&&(pl<=mi+4))
+				{
+					mi+=PickCosts[P_09SPY];
+					pl+=PickCosts[P_11SPY];
+					picks[P_11SPY]=1;
+					picks[P_09SPY]=0;
+				}
+				else
+				if(picks[P_12SPY]==1)
+				{
+					pl+=PickCosts[P_11SPY];
+					pl-=PickCosts[P_12SPY];
+					picks[P_11SPY]=1;
+					picks[P_12SPY]=0;
+				}
+				else 
+				if(pl<=mi+7)
+				{
+					pl+=PickCosts[P_11SPY];
+					picks[P_11SPY]=1;
+				};break;
+			case P_12SPY:
+				if(picks[P_12SPY]==1)
+				{
+					pl-=PickCosts[P_12SPY];
+					picks[P_12SPY]=0;
+				}
+				else
+				if((picks[P_09SPY]==1)&&(pl<=mi+1))
+				{
+					mi+=PickCosts[P_09SPY];
+					pl+=PickCosts[P_12SPY];
+					picks[P_12SPY]=1;
+					picks[P_09SPY]=0;
+				}
+				else
+				if((picks[P_11SPY]==1)&&(pl<=mi+7))
+				{
+					pl+=PickCosts[P_12SPY];
+					pl-=PickCosts[P_11SPY];
+					picks[P_12SPY]=1;
+					picks[P_11SPY]=0;
+				}
+				else 
+				if(pl<=mi+4)
+				{
+					pl+=PickCosts[P_12SPY];
+					picks[P_12SPY]=1;
+				};break;
+
+			case P_05BCS:
+				if(picks[P_05BCS]==1)
+				{
+					mi+=PickCosts[P_05BCS];
+					picks[P_05BCS]=0;
+				}
+				else
+				if(mi<=6)
+				{
+					mi-=PickCosts[P_05BCS];
+					picks[P_05BCS]=1;
+					if(picks[P_15BCS]==1)
+					{
+						pl-=PickCosts[P_15BCS];
+						picks[P_15BCS]=0;
+					}
+					else 
+					if(picks[P_20BCS]==1)
+					{
+						pl-=PickCosts[P_20BCS];
+						picks[P_20BCS]=0;
+					}
+				};break;
+			case P_15BCS:
+				if(picks[P_15BCS]==1)
+				{
+					pl-=PickCosts[P_15BCS];
+					picks[P_15BCS]=0;
+				}
+				else
+				if((picks[P_05BCS]==1)&&(pl<=mi+1))
+				{
+					mi+=PickCosts[P_05BCS];
+					pl+=PickCosts[P_15BCS];
+					picks[P_15BCS]=1;
+					picks[P_05BCS]=0;
+				}
+				else
+				if(picks[P_20BCS]==1)
+				{
+					pl+=PickCosts[P_15BCS];
+					pl-=PickCosts[P_20BCS];
+					picks[P_15BCS]=1;
+					picks[P_20BCS]=0;
+				}
+				else 
+				if(pl<=mi+5)
+				{
+					pl+=PickCosts[P_15BCS];
+					picks[P_15BCS]=1;
+				};break;
+			case P_20BCS:
+				if(picks[P_20BCS]==1)
+				{
+					pl-=PickCosts[P_20BCS];
+					picks[P_20BCS]=0;
+				}
+				else
+				if((picks[P_05BCS]==1)&&(pl<=mi-2))
+				{
+					mi+=PickCosts[P_05BCS];
+					pl+=PickCosts[P_20BCS];
+					picks[P_20BCS]=1;
+					picks[P_05BCS]=0;
+				}
+				else
+				if((picks[P_15BCS]==1)&&(pl<=mi+7))
+				{
+					pl+=PickCosts[P_20BCS];
+					pl-=PickCosts[P_15BCS];
+					picks[P_20BCS]=1;
+					picks[P_15BCS]=0;
+				}
+				else 
+				if(pl<=mi+2)
+				{
+					pl+=PickCosts[P_20BCS];
+					picks[P_20BCS]=1;
+				};break;
+
+			case P_08ATTACK:
+				if(picks[P_08ATTACK]==1)
+				{
+					mi+=PickCosts[P_08ATTACK];
+					picks[P_08ATTACK]=0;
+				}
+				else
+				if(mi<=8)
+				{
+					mi-=PickCosts[P_08ATTACK];
+					picks[P_08ATTACK]=1;
+					if(picks[P_12ATTACK]==1)
+					{
+						pl-=PickCosts[P_12ATTACK];
+						picks[P_12ATTACK]=0;
+					}
+					else 
+					if(picks[P_15ATTACK]==1)
+					{
+						pl-=PickCosts[P_15ATTACK];
+						picks[P_15ATTACK]=0;
+					}
+				};break;
+			case P_12ATTACK:
+				if(picks[P_12ATTACK]==1)
+				{
+					pl-=PickCosts[P_12ATTACK];
+					picks[P_12ATTACK]=0;
+				}
+				else
+				if((picks[P_08ATTACK]==1)&&(pl<=mi+6))
+				{
+					mi+=PickCosts[P_08ATTACK];
+					pl+=PickCosts[P_12ATTACK];
+					picks[P_12ATTACK]=1;
+					picks[P_08ATTACK]=0;
+				}
+				else
+				if(picks[P_15ATTACK]==1)
+				{
+					pl+=PickCosts[P_12ATTACK];
+					pl-=PickCosts[P_15ATTACK];
+					picks[P_12ATTACK]=1;
+					picks[P_15ATTACK]=0;
+				}
+				else 
+				if(pl<=mi+8)
+				{
+					pl+=PickCosts[P_12ATTACK];
+					picks[P_12ATTACK]=1;
+				};break;
+			case P_15ATTACK:
+				if(picks[P_15ATTACK]==1)
+				{
+					pl-=PickCosts[P_15ATTACK];
+					picks[P_15ATTACK]=0;
+				}
+				else
+				if((picks[P_08ATTACK]==1)&&(pl<=mi+4))
+				{
+					mi+=PickCosts[P_08ATTACK];
+					pl+=PickCosts[P_15ATTACK];
+					picks[P_15ATTACK]=1;
+					picks[P_08ATTACK]=0;
+				}
+				else
+				if((picks[P_12ATTACK]==1)&&(pl<=mi+8))
+				{
+					pl+=PickCosts[P_15ATTACK];
+					pl-=PickCosts[P_12ATTACK];
+					picks[P_15ATTACK]=1;
+					picks[P_12ATTACK]=0;
+				}
+				else 
+				if(pl<=mi+6)
+				{
+					pl+=PickCosts[P_15ATTACK];
+					picks[P_15ATTACK]=1;
+				};break;
+
+
+			case P_08DEFENSE:
+				if(picks[P_08DEFENSE]==1)
+				{
+					mi+=PickCosts[P_08DEFENSE];
+					picks[P_08DEFENSE]=0;
+				}
+				else
+				if(mi<=8)
+				{
+					mi-=PickCosts[P_08DEFENSE];
+					picks[P_08DEFENSE]=1;
+					if(picks[P_12DEFENSE]==1)
+					{
+						pl-=PickCosts[P_12DEFENSE];
+						picks[P_12DEFENSE]=0;
+					}
+					else 
+					if(picks[P_15DEFENSE]==1)
+					{
+						pl-=PickCosts[P_15DEFENSE];
+						picks[P_15DEFENSE]=0;
+					}
+				};break;
+			case P_12DEFENSE:
+				if(picks[P_12DEFENSE]==1)
+				{
+					pl-=PickCosts[P_12DEFENSE];
+					picks[P_12DEFENSE]=0;
+				}
+				else
+				if((picks[P_08DEFENSE]==1)&&(pl<=mi+5))
+				{
+					mi+=PickCosts[P_08DEFENSE];
+					pl+=PickCosts[P_12DEFENSE];
+					picks[P_12DEFENSE]=1;
+					picks[P_08DEFENSE]=0;
+				}
+				else
+				if(picks[P_15DEFENSE]==1)
+				{
+					pl+=PickCosts[P_12DEFENSE];
+					pl-=PickCosts[P_15DEFENSE];
+					picks[P_12DEFENSE]=1;
+					picks[P_15DEFENSE]=0;
+				}
+				else 
+				if(pl<=mi+7)
+				{
+					pl+=PickCosts[P_12DEFENSE];
+					picks[P_12DEFENSE]=1;
+				};break;
+			case P_15DEFENSE:
+				if(picks[P_15DEFENSE]==1)
+				{
+					pl-=PickCosts[P_15DEFENSE];
+					picks[P_15DEFENSE]=0;
+				}
+				else
+				if((picks[P_08DEFENSE]==1)&&(pl<=mi+1))
+				{
+					mi+=PickCosts[P_08DEFENSE];
+					pl+=PickCosts[P_15DEFENSE];
+					picks[P_15DEFENSE]=1;
+					picks[P_08DEFENSE]=0;
+				}
+				else
+				if((picks[P_12DEFENSE]==1)&&(pl<=mi+6))
+				{
+					pl+=PickCosts[P_15DEFENSE];
+					pl-=PickCosts[P_12DEFENSE];
+					picks[P_15DEFENSE]=1;
+					picks[P_12DEFENSE]=0;
+				}
+				else 
+				if(pl<=mi+3)
+				{
+					pl+=PickCosts[P_15DEFENSE];
+					picks[P_15DEFENSE]=1;
+				};break;
+
+
+			case P_09GROUND:
+				if(picks[P_09GROUND]==1)
+				{
+					mi+=PickCosts[P_09GROUND];
+					picks[P_09GROUND]=0;
+				}
+				else
+				if(mi<=8)
+				{
+					mi-=PickCosts[P_09GROUND];
+					picks[P_09GROUND]=1;
+					if(picks[P_11GROUND]==1)
+					{
+						pl-=PickCosts[P_11GROUND];
+						picks[P_11GROUND]=0;
+					}
+					else 
+					if(picks[P_12GROUND]==1)
+					{
+						pl-=PickCosts[P_12GROUND];
+						picks[P_12GROUND]=0;
+					}
+				};break;
+			case P_11GROUND:
+				if(picks[P_11GROUND]==1)
+				{
+					pl-=PickCosts[P_11GROUND];
+					picks[P_11GROUND]=0;
+				}
+				else
+				if((picks[P_09GROUND]==1)&&(pl<=mi+6))
+				{
+					mi+=PickCosts[P_09GROUND];
+					pl+=PickCosts[P_11GROUND];
+					picks[P_11GROUND]=1;
+					picks[P_09GROUND]=0;
+				}
+				else
+				if(picks[P_12GROUND]==1)
+				{
+					pl+=PickCosts[P_11GROUND];
+					pl-=PickCosts[P_12GROUND];
+					picks[P_11GROUND]=1;
+					picks[P_12GROUND]=0;
+				}
+				else 
+				if(pl<=mi+8)
+				{
+					pl+=PickCosts[P_11GROUND];
+					picks[P_11GROUND]=1;
+				};break;
+			case P_12GROUND:
+				if(picks[P_12GROUND]==1)
+				{
+					pl-=PickCosts[P_12GROUND];
+					picks[P_12GROUND]=0;
+				}
+				else
+				if((picks[P_09GROUND]==1)&&(pl<=mi+4))
+				{
+					mi+=PickCosts[P_09GROUND];
+					pl+=PickCosts[P_12GROUND];
+					picks[P_12GROUND]=1;
+					picks[P_09GROUND]=0;
+				}
+				else
+				if((picks[P_11GROUND]==1)&&(pl<=mi+8))
+				{
+					pl+=PickCosts[P_12GROUND];
+					pl-=PickCosts[P_11GROUND];
+					picks[P_12GROUND]=1;
+					picks[P_11GROUND]=0;
+				}
+				else 
+				if(pl<=mi+6)
+				{
+					pl+=PickCosts[P_12GROUND];
+					picks[P_12GROUND]=1;
+				};break;
+
+
+			case P_15FOOD:
+				if(picks[P_LITHOVORE]==1)
+				{
+					picks[P_LITHOVORE]=0;
+					pl-=PickCosts[P_LITHOVORE];
+				}
+				if(picks[P_15FOOD]==1)
+				{
+					mi+=PickCosts[P_15FOOD];
+					picks[P_15FOOD]=0;
+				}
+				else
+				if(mi<=7)
+				{
+					mi-=PickCosts[P_15FOOD];
+					picks[P_15FOOD]=1;
+					if(picks[P_30FOOD]==1)
+					{
+						pl-=PickCosts[P_30FOOD];
+						picks[P_30FOOD]=0;
+					}
+					else 
+					if(picks[P_40FOOD]==1)
+					{
+						pl-=PickCosts[P_40FOOD];
+						picks[P_40FOOD]=0;
+					}
+				};break;
+			case P_30FOOD:
+				if(picks[P_LITHOVORE]==1)
+				{
+					picks[P_LITHOVORE]=0;
+					pl-=PickCosts[P_LITHOVORE];
+				}
+				if(picks[P_30FOOD]==1)
+				{
+					pl-=PickCosts[P_30FOOD];
+					picks[P_30FOOD]=0;
+				}
+				else
+				if((picks[P_15FOOD]==1)&&(pl<=mi+3))
+				{
+					mi+=PickCosts[P_15FOOD];
+					pl+=PickCosts[P_30FOOD];
+					picks[P_30FOOD]=1;
+					picks[P_15FOOD]=0;
+				}
+				else
+				if(picks[P_40FOOD]==1)
+				{
+					pl+=PickCosts[P_30FOOD];
+					pl-=PickCosts[P_40FOOD];
+					picks[P_30FOOD]=1;
+					picks[P_40FOOD]=0;
+				}
+				else 
+				if(pl<=mi+6)
+				{
+					pl+=PickCosts[P_30FOOD];
+					picks[P_30FOOD]=1;
+				};break;
+			case P_40FOOD:
+				if(picks[P_LITHOVORE]==1)
+				{
+					picks[P_LITHOVORE]=0;
+					pl-=PickCosts[P_LITHOVORE];
+				}
+				if(picks[P_40FOOD]==1)
+				{
+					pl-=PickCosts[P_40FOOD];
+					picks[P_40FOOD]=0;
+				}
+				else
+				if((picks[P_15FOOD]==1)&&(pl<=mi))
+				{
+					mi+=PickCosts[P_15FOOD];
+					pl+=PickCosts[P_40FOOD];
+					picks[P_40FOOD]=1;
+					picks[P_15FOOD]=0;
+				}
+				else
+				if((picks[P_30FOOD]==1)&&(pl<=mi+7))
+				{
+					pl+=PickCosts[P_40FOOD];
+					pl-=PickCosts[P_30FOOD];
+					picks[P_40FOOD]=1;
+					picks[P_30FOOD]=0;
+				}
+				else 
+				if(pl<=mi+3)
+				{
+					pl+=PickCosts[P_40FOOD];
+					picks[P_40FOOD]=1;
+				};break;
+			}
+		};
+
+void player::Create()
+{
+	unsigned short i,j;
+
+	pl=0;mi=0;
+
+	for(i=0;i<MAX_PICKS;i++);
+		TryPick(rand()%MAX_PICKS);
+	while(pl<mi+8)
+		TryPick(rand()%MAX_PICKS);
+		
+		for(i=0;i<MAX_ORDERS;i++)
+			OQueue[i]=rand()%ORDER_COUNT;
+		for(i=0;i<MAX_SCIENCE;i++)
+			SQueue[i]=0;
+		for(i=0;i<8;i++)
+			for(j=0;j<15;j++)
+				Area[i][j]=0;
+//		for(i=0;i<MAX_SCIENCE;i++)
+//		{
+//			t=rand()%MAX_TECH;
+//			while(CanResearch(t)==0) t=rand()%MAX_TECH;
+//			SQueue[i]=t;
+//			tech[t]=1;
+//			Area[ScienceArea[t].Field][ScienceArea[t].Progress]=1;
+//		}
 
 
 
-	P.OQueue
-	P.SQueue
-}
+
+
+SQueue[0]=T_ELECTRONIC_COMPUTER;
+SQueue[1]=T_RESEARCH_LAB;
+SQueue[2]=T_REINFORCED_HULL;
+SQueue[3]=T_AUTOMATED_FACTORIES;
+SQueue[4]=T_BIOSPHERES;
+SQueue[5]=T_CLONING_CENTER;
+SQueue[6]=T_NEURAL_SCANNER;
+SQueue[7]=T_PLANETARY_SUPERCOMPUTER;
+SQueue[8]=T_CHEMISTRY;
+SQueue[9]=T_TRITANIUM_ARMOR;
+SQueue[10]=T_POLLUTION_PROCESSOR;
+SQueue[11]=T_BATTLE_PODS;
+SQueue[12]=T_SPACE_PORT;
+SQueue[13]=T_ROBO_MINE_PLANT;
+SQueue[14]=T_PHYSICS;
+SQueue[15]=T_FUSION_RIFLE;
+SQueue[16]=T_BATTLE_SCANNER;
+SQueue[17]=T_ATMOSPHERE_RENEWER;
+SQueue[18]=T_ZORTIUM_ARMOR;
+SQueue[19]=T_NUCLEAR_FISSION;
+SQueue[20]=T_COLD_FUSION;
+SQueue[21]=T_AUGMENTED_ENGINES;
+
+		for(i=0;i<MAX_TECH;i++)
+			tech[i]=0;
+	}
+
+	void player::Mutate()
+	{
+		unsigned char ttt,ta,tb;
+		unsigned short x,y,i,k;
+
+	//loeschen, einfuegen, veraendern
+		for(k=0;k<Mutations;k++)
+		{
+
+			// Locations rein!!!!
+			if(rand()%Mutations==0)
+			{
+				x=rand()%MAX_ORDERS;
+				for(y=x;y<MAX_ORDERS-1;y++)
+					OQueue[y]=OQueue[y+1];
+			}
+			if(rand()%Mut_Rate==0)
+			{
+				x=rand()%MAX_ORDERS;
+				for(y=MAX_ORDERS-1;y>x;y--)
+					OQueue[y]=OQueue[y-1];
+				OQueue[x]=rand()%MAX_ORDERS;
+			}		
+			if(rand()%Mut_Rate==0)
+			{
+				x=rand()%MAX_ORDERS;
+				OQueue[x]=rand()%MAX_ORDERS;
+			}
+			if(rand()%Mut_Rate==0)
+			{
+				ta=rand()%MAX_ORDERS;
+				tb=rand()%MAX_ORDERS;
+				ttt=OQueue[ta];
+				OQueue[ta]=OQueue[tb];
+				OQueue[tb]=ttt;
+			}
+			if(rand()%(Mut_Rate/2)==0)
+			{
+				ta=rand()%MAX_ORDERS;
+				tb=rand()%MAX_ORDERS;
+				if(ta>tb)
+				{
+					ttt=OQueue[ta];
+					for(i=ta;i<tb;i++)
+						OQueue[i]=OQueue[i+1];
+					OQueue[tb]=ttt;
+				}
+			}
+			if(rand()%Mut_Rate==0)
+				TryPick(rand()%MAX_PICKS);
+		}
+	}
 
 
 };
 
-player P;
+player P,S;
+
+/*Mutation, Weitergabe, Save
+
+Schiffe!!
+Besiedelungsfunktion
+etc.etc.
+aber sieht schon gut aus :)*/
+
+
+
+
+
+unsigned char Planets::CanBuild(unsigned char item)
+{
+	unsigned char a,b;
+	if(Building[item]==1) return 0;
+	for(a=0;a<10;a++)
+		if(BQueue[a]==item) return 0;
+	switch(item)
+	{
+		case B_COLONY_BASE:b=1;for(a=0;a<5;a++) b&=((System[system].Object[a]->Settlement>0)||(System[system].Object[a]->Type<3));if(b==1) return 0;break;
+		case B_AUTOMATED_FACTORIES:if(P.tech[T_AUTOMATED_FACTORIES]==0) return 0;break;
+		case B_SPACE_PORT:if(P.tech[T_SPACE_PORT]==0) return 0;break;
+		case B_ROBO_MINE_PLANT:if(P.tech[T_ROBO_MINE_PLANT]==0) return 0;break;
+		case B_COLONY_SHIP:if(P.tech[T_COLD_FUSION]==0) return 0;break;
+		case B_POLLUTION_PROCESSOR:if(P.tech[T_POLLUTION_PROCESSOR]==0) return 0;break;
+		case B_ATMOSPHERE_RENEWER:if(P.tech[T_ATMOSPHERE_RENEWER]==0) return 0;break;
+		case B_RESEARCH_LAB:if(P.tech[T_RESEARCH_LAB]==0) return 0;break;
+		case B_PLANETARY_SUPERCOMPUTER:if(P.tech[T_PLANETARY_SUPERCOMPUTER]==0) return 0;break;
+		case B_HYDROPONIC_FARM:if(P.tech[T_HYDROPONIC_FARM]==0) return 0;break;
+		case B_BIOSPHERES:if(P.tech[T_BIOSPHERES]==0) return 0;break;
+		case B_CLONING_CENTER:if(P.tech[T_CLONING_CENTER]==0) return 0;break;
+		case B_SOIL_ENRICHMENT:if(P.tech[T_SOIL_ENRICHMENT]==0) return 0;break; //?
+		case B_GRAVITY_GENERATOR:if((P.tech[T_PLANETARY_GRAVITATION_GENERATION]==0)|| ( (Gravitation==0)&&(P.picks[P_LOWG]==1) ) || ( (Gravitation==1) && ( P.picks[P_LOWG]==0) ) || ((Gravitation==2)&&(P.picks[P_HIGHG]==1))) return 0;break;
+//		case B_GOVERNMENT_CENTER:if(P.NoGoverment==0) return 0;break;
+	};
+
+		
+
+
+/*	not already in queue
+	tech availible
+	not availible because of grav/race/already built in system?
+	not already built*/
+		return 1;
+};
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 void main()
 {
-	unsigned short run,old,oldl,i,j;
-	unsigned char l,race,counter;//,Detailed_Info;
+	unsigned short i,j,oldf;
+	HANDLE hStdOut=GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD coord={0,0};
+	ofstream out_file("bo.txt");
 
-//	char I[11],O[9];
-	unsigned short n,pos;
-	unsigned char * buffer;
-	char line[100];
-	long size;
-	signed char error;
 
 	srand(time(NULL));
 	for(i=0;i<1000;i++)
 		j=rand()%2;
 	j=0;
+Mutations=MAX_ORDERS;
+Mut_Rate=50;
+oldf=0;
 
+for(i=0;i<MAX_SYSTEMS;i++)
+	for(j=0;j<5;j++)
+		System[i].Object[j]=&planet[i*5+j];
 
-	for(i=0;i<MAX_SYSTEMS;i++)
-		for(j=0;j<5;j++)
-			System[i].Object[j]=&planet[i*5+j];
-
+for(i=0;i<MAX_ORDERS;i++)
+	S.OQueue[i]=P.OQueue[i];
+for(i=0;i<MAX_TECH;i++)
+	S.SQueue[i]=P.SQueue[i];
+for(i=0;i<MAX_PICKS;i++)
+	S.picks[i]=P.picks[i];
+		S.time=P.time;
+		S.orders=P.orders;
 P.Init();
 P.Create();
-P.Restart();
 
 
+while(kbhit()==0)
+{
+	P.Init();
+//	if(rand()%20==0) P.Create();
 
-	Max_Generations=0;
-	Mutations=0;
-	Mut_Rate=0;
+	P.RestartGalaxy();
+	P.BetweenTime();
+//	printf(".");
 
-	run=0;
-
-	error=0;
-
-	Player Save[RUNNINGS];
-	Player tempp;
-
-	for(l=0;l<RUNNINGS;l++)
-		Save[l].Init();
-	tempp.Init();
-
-	while( (kbhit()==0) && (run<RUNNINGS))
+	if(P.Fitness>oldf)
 	{
-		x=0;
-		while(generation<Max_Generations)
-		{
-			player->Init();
-			for(i=0;i<MAX_LENGTH;i++)
-				player->program[i].order=Save[run]->program[i].order;
-			player->Mutate();
+		//		SetConsoleCursorPosition(hStdOut,coord);
+		oldf=P.Fitness;
+	//	for(i=0;i<MAX_BUILDINGS;i++)
+		printf("(%i) ",P.Fitness);
+			for(j=0;j<MAX_PLANETS;j++)
+				if(planet[j].Settlement>0)
+					printf("%i: %i/%i, ",planet[j].Settlement,planet[j].Population,planet[j].maxPop);
 
-			player->Calculate();
-			if(player->fitness>Save[run]->fitness)
-			{
-				for(i=0;i<MAX_LENGTH;i++)
-				{
-					Save[run]->program[i].order=player->program[i].order;
-					Save[run]->program[i].mins=player->program[i].mins;
-					Save[run]->program[i].gas=player->program[i].gas;
-				}
-
-				//location?
-				Save[run]->fitness=player->fitness;
-				Save[run]->timer=player->timer;
-				Save[run]->harvested_mins=player->harvested_mins;
-				Save[run]->harvested_gas=player->harvested_gas;
-				Save[run]->mins=player->mins;
-				Save[run]->gas=player->gas;
-				Save[run]->length=player->length;
-				for(i=0;i<building_types;i++)
-					for(j=0;j<LOCATIONS;j++)
-						Save[run]->force[i][j]=player->force[i][j];
-				generation=0;
-			}
-			generation++;
-			//printf("%i.",Save[run]->fitness);
-		}
-		run++;
-		generation=0;
-
-		player->Restart();
-		printf("%i:%i ",RUNNINGS-run,Save[run-1]->timer);
-
-	} // end while...
-
-	//Output
-
-	y=RUNNINGS;
-	if(run>0)
-	{
-		afit=0;
-		for(x=0;x<RUNNINGS;x++)
-			if((Save[x]->fitness>afit)&&(Save[x]->timer<Max_Time))
-			{
-				afit=Save[x]->fitness;
-				y=x;
-			}
-	}
-
-	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");//new page :P
-	printf("Calculating completed.\n\n");
-	if(y==RUNNINGS)
-	{
-		printf("  NO SOLUTION FOUND!\n");
-		printf("The program scanned the %s at the beginning but didn't find any errors.\n",I);
-		printf("(like too many goals, impossible combinations etc.)\n\n");
-		printf(" Possible solutions (you can change the values in %s):\n",I);
-		if(Max_Time<2700) 
-			printf("- Try to increase Max Time.\n  Currently it is set to %i, while the maximum is 45.\n",Max_Time);
-		if(Max_Generations<200)
-			printf("- Try to increase Max Generations.\n  Currently it is set to %i, while a good value is about 250.\n",Max_Generations);
-		if(Mutations<20)
-			printf("- Try to increase Mutations.\n  Currently it is set to %i, while a good value is about 25.\n",Mutations);
-		if(Mutations>40)
-			printf("- Try to decrease Mutations.\n  Currently it is set to %i, while a good value is about 25.\n",Mutations);
-		if(Mut_Rate<25)
-			printf("- Try to increase Mutation Rate.\n  Currently it is set to %i, while a good value is about 50.\n",Mut_Rate);
-		if(Mut_Rate>75)
-			printf("- Try to decrease Mutation Rate.\n  Currently it is set to %i, while a good value is about 50.\n",Mut_Rate);
-		printf("- If even a rerun does not bring any result I would be happy if you send me the %s to scc@clawsoftware.de!\n",I);
-		printf("- Maybe other users already reported this, so it would be wise to check www.clawsoftware.de for an update\n");
-		l=getch();
-		return 1;
-	}
-
-	printf(" The build order was saved in the file ""%s"".\n\n",O);
-	printf(" Brought to you by clawsoftware.de\n");
-	printf("\n\n\n\n\n\n\n\n\n\n");	
-
-	out_file<<"StarCraft Evolution Chamber by ClawSoftware.de\n";
-	out_file<<"--------------------------------------------------\n\n";
-	out_file<<"Fastest build order:\n";
-	sprintf(line,"Time used: [%2i:%02i]\n",Save[y]->timer/60,Save[y]->timer%60);
-	out_file<<line;
-
-	old=200;oldl=200;
-	counter=1;
-	for(i=0;i<=Save[y]->length;i++)
-	{
-		if(Detailed_Info==0)
-		{
-			while(((Save[y]->program[i].time>=Save[y]->timer-stats[race][Build_Av[Save[y]->program[i].order]].BT)||(Build_Av[Save[y]->program[i].order]>=building_types-1))&&(i<MAX_LENGTH-1))
-				i++;
-			if((old==Build_Av[Save[y]->program[i].order])&&(oldl==Save[y]->program[i].location)) counter++;
-			else if((old<200)&&(oldl<200))
-			{
-				sprintf(line,"%2i %s (%s)\n",counter,stats[race][old].name,location[Save[y]->program[i].location].name);
-				out_file<<line;
-				counter=1;
-				old=Build_Av[Save[y]->program[i].order];
-				oldl=Save[y]->program[i].location;
-			}
-			else
-			{
-				old=Build_Av[Save[y]->program[i].order];
-				oldl=Save[y]->program[i].location;
-			}
-		}
-		else
-			//TODO buildingtypes-1 schreiben... damit wait net in der dings drinsteht... oder bissl aendern... sieht etwas verwirrend aus...
-		if((Save[y]->program[i].time<Save[y]->timer-stats[race][Build_Av[Save[y]->program[i].order]].BT)&&(Build_Av[Save[y]->program[i].order]<building_types)&&((i==0)||(Save[y]->program[i].time>0)))
-		{
-			sprintf(line,"[%3i/%3i] [%5iM|%5iG] [%2i:%02i] -> [%2i:%02i] %s (%s)\n",(Save[y]->program[i].UsedSupply+0),(Save[y]->program[i].Supply+0),Save[y]->program[i].mins,Save[y]->program[i].gas,(Save[y]->program[i].time+0)/60,(Save[y]->program[i].time+0)%60,(Save[y]->program[i].time+stats[race][Build_Av[Save[y]->program[i].order]].BT)/60,(Save[y]->program[i].time+stats[race][Build_Av[Save[y]->program[i].order]].BT)%60,stats[race][Build_Av[Save[y]->program[i].order]].name,location[Save[y]->program[i].location].name);
-			out_file<<line;
-		}
-	}
-
-	for(j=0;j<LOCATIONS;j++)
-	for(i=0;i<building_types;i++)
-		if(Save[y]->force[i][j]>0)
-		{
-			sprintf(line,"%2ix %s (%s)\n",Save[y]->force[i][j],stats[race][i].name,location[j].name);
-			out_file<<line;
-		}
+	//			if(planet[j].Building[i]==1) 
+	//				printf("%s",BName[i].Name);
+//			if(P.OQueue[i]<161) printf(" %s |",Orders[P.OQueue[i]].Name);
+	printf("-(T: %i)  (O: %i)-\n",P.time,P.orders);
 	
-	out_file<<"Harvested Minerals: "<<(unsigned short)(Save[y]->harvested_mins+0)<<"\n";
-	out_file<<"Harvested Gas: "<<(unsigned short)(Save[y]->harvested_gas+0)<<"\n";		
-	out_file<<"Minerals after completing last task: "<<(unsigned short)(Save[y]->mins+0)<<"\n";
-	out_file<<"Gas after completing last task: "<<(unsigned short)(Save[y]->gas+0)<<"\n";
-	
-	if(run>0)
-	{
-		out_file<<"\n";
-		out_file<<"Other possible solutions: \n";
-		for(x=0;x<run;x++)
-			if((Save[x]->timer<Max_Time)&&(y!=x)&&(Save[x]->timer!=Save[y]->timer))			
-			{
-				out_file<<"\n";
-				out_file<<"\n----------------------------------------------------------\n\n";
-				sprintf(line,"Time used: [%2i:%02i]\n",Save[x]->timer/60,Save[x]->timer%60);
-				out_file<<line;
-				old=200;oldl=200;
-				counter=1;
-				for(i=0;i<=Save[x]->length;i++)
-				{
-					if(Detailed_Info==0)
-					{
-						while(((Save[x]->program[i].time>=Save[x]->timer-stats[race][Build_Av[Save[x]->program[i].order]].BT)||(Build_Av[Save[x]->program[i].order]>=building_types))&&(i<MAX_LENGTH-1))
-							i++;
-						if((old==Build_Av[Save[x]->program[i].order])&&(oldl==Save[x]->program[i].location)) counter++;
-						else if((old<200)&&(oldl<200))
-						{
-							sprintf(line,"%2i %s (%s)\n",counter,stats[race][old].name,location[Save[x]->program[i].location].name);
-							out_file<<line;
-							counter=1;
-							old=Build_Av[Save[x]->program[i].order];
-							oldl=Save[x]->program[i].location;
-						}
-						else
-						{
-							old=Build_Av[Save[x]->program[i].order];
-							oldl=Save[x]->program[i].location;
-						}
-					}
-					else
-					if((Save[x]->program[i].time<Save[x]->timer-stats[race][Build_Av[Save[x]->program[i].order]].BT)&&(Build_Av[Save[x]->program[i].order]<building_types)&&((i==0)||(Save[x]->program[i].time>0)))
-					{
-						sprintf(line,"[%3i/%3i] [%5iM|%5iG] [%2i:%02i] -> [%2i:%02i] %s (%s)\n",(Save[x]->program[i].UsedSupply+0),(Save[x]->program[i].Supply+0),Save[x]->program[i].mins,Save[x]->program[i].gas,(Save[x]->program[i].time+0)/60,(Save[x]->program[i].time+0)%60,(Save[x]->program[i].time+stats[race][Build_Av[Save[x]->program[i].order]].BT)/60,(Save[x]->program[i].time+stats[race][Build_Av[Save[x]->program[i].order]].BT)%60,stats[race][Build_Av[Save[x]->program[i].order]].name,location[Save[x]->program[i].location].name);
-						out_file<<line;
-					}
-				}
-					
-				for(j=0;j<LOCATIONS;j++)
-				for(i=0;i<building_types;i++)
-					if(Save[x]->force[i][j]>0)
-					{
-						sprintf(line,"%2ix %s (%s)\n",Save[x]->force[i][j],stats[race][i].name,location[j].name);
-						out_file<<line;
-					}						
-
-				out_file<<"Harvested Minerals: "<<(unsigned short)(Save[x]->harvested_mins+0)<<"\n";
-				out_file<<"Harvested Gas: "<<(unsigned short)(Save[x]->harvested_gas+0)<<"\n";	
-				out_file<<"Minerals after completing last task: "<<(unsigned short)(Save[x]->mins+0)<<"\n";
-				out_file<<"Gas after completing last task: "<<(unsigned short)(Save[x]->gas+0)<<"\n";
-			}
+		for(i=0;i<MAX_ORDERS;i++)
+			S.OQueue[i]=P.OQueue[i];
+		for(i=0;i<MAX_TECH;i++)
+			S.SQueue[i]=P.SQueue[i];
+		for(i=0;i<MAX_PICKS;i++)
+			S.picks[i]=P.picks[i];
+		S.time=P.time;
+		S.orders=P.orders;
 	}
+	else
+	{
+		for(i=0;i<MAX_ORDERS;i++)
+			P.OQueue[i]=S.OQueue[i];
+		for(i=0;i<MAX_TECH;i++)
+			P.SQueue[i]=S.SQueue[i];
+		for(i=0;i<MAX_PICKS;i++)
+			P.picks[i]=S.picks[i];
+	}
+	P.Mutate();
+}
+	out_file<<"Time: "<<S.time;
+	out_file<<"Orders: "<<S.orders;
+
+
+	out_file<<"Orders:\n";
+	for(i=0;i<MAX_ORDERS;i++)
+	{
+		if(S.OQueue[i]<180) out_file<<Orders[S.OQueue[i]].Name;
+		if((S.OQueue[i]>36)&&(S.OQueue[i]<99))
+			out_file<<"  "<<BName[S.OQueue[i]-37].Name;
+		else if((S.OQueue[i]>98)&&(S.OQueue[i]<161))
+			out_file<<"  "<<BName[S.OQueue[i]-99].Name;
+		
+		if(S.OQueue[i]>179) out_file<<">>\n"; else out_file<<" | ";
+	}
+
+	out_file<<"Science:\n";
+	for(i=0;i<MAX_TECH;i++)
+		out_file<<TName[S.SQueue[i]].Name<<"\n";
+
+	out_file<<"Picks:\n";
+	for(i=0;i<MAX_PICKS;i++)
+		if(S.picks[i]==1)
+			out_file<<PName[i].Name<<"\n";
+
+
 
 	out_file.close();
-
-	player=NULL;
-	for(l=0;l<RUNNINGS;l++)
-		Save[l]=NULL;
-	tempp=NULL;
-
-	x=getch();
-	return 0;
-}
+};
 
 
 // In output noch larven?
@@ -2473,4 +2490,5 @@ P.Restart();
 
 
 
-}
+// Verbesserungen: evtl doch cross over und multiple viecher
+// 
