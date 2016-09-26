@@ -7,10 +7,12 @@
 #define MAX_X 20
 #define MAX_Y 15 // tiny galaxy
 
-#define MAX_ORDERS 250
+#define MAX_ORDERS 150
 #define MAX_SCIENCE 50
 #define MAX_TECH 179
 #define MAX_TRANSPORT 10
+
+#define MAX_TURNS 50
 
 
 #define ORDER_COUNT 190
@@ -272,16 +274,32 @@ const unsigned char growth[30][30]= //pop/size
 	{0,  0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,0	,43}
 };
 
-unsigned char Area[8][15]; // Zeiger auf die einzelnen Areale
+unsigned char progress[8]; // Zeiger auf die einzelnen Areale
+
+unsigned char ScienceList[30]; //Zeiger auf die einzelnen erforschbaren Techs
+
+unsigned char SCount[8][12]=
+{
+	{3,3,3,3,3,3,3,3,2,2,3,2},
+	{1,1,3,3,3,2,3,3,3,0,0,0},
+	{1,2,2,3,3,3,2,0,0,0,0,0},
+	{1,2,1,1,1,1,0,0,0,0,0,0},
+	{1,3,3,3,3,3,3,2,3,0,0,0},
+	{2,3,2,1,2,2,2,3,0,0,0,0},
+	{1,2,3,2,3,2,3,3,2,3,3,0},
+	{3,3,3,3,3,3,3,3,3,3,0,0}
+};
 
 struct str
 {
 	unsigned char Field,Progress;
 };
 
+
+
 const str ScienceArea[MAX_TECH]=
 {
-	{0,0},{0,0},{0,0},
+	//Construction
 	{0,1},{0,1},{0,1},
 	{0,2},{0,2},{0,2},
 	{0,3},{0,3},{0,3},
@@ -289,75 +307,96 @@ const str ScienceArea[MAX_TECH]=
 	{0,5},{0,5},{0,5},
 	{0,6},{0,6},{0,6},
 	{0,7},{0,7},{0,7},
-	{0,8},{0,8},
+	{0,8},{0,8},{0,8},
 	{0,9},{0,9},
-	{0,10},{0,10},{0,10},
-	{0,11},{0,11},
+	{0,10},{0,10},
+	{0,11},{0,11},{0,11},
+	{0,12},{0,12},
 
-	{1,0},
+	//Power
 	{1,1},
-	{1,2},{1,2},{1,2},
+	{1,2},
 	{1,3},{1,3},{1,3},
 	{1,4},{1,4},{1,4},
-	{1,5},{1,5},
-	{1,6},{1,6},{1,6},
+	{1,5},{1,5},{1,5},
+	{1,6},{1,6},
 	{1,7},{1,7},{1,7},
 	{1,8},{1,8},{1,8},
+	{1,9},{1,9},{1,9},
 
-	{2,0},
-	{2,1},{2,1},
+	//Chemistry
+
+	{2,1},
 	{2,2},{2,2},
-	{2,3},{2,3},{2,3},
+	{2,3},{2,3},
 	{2,4},{2,4},{2,4},
 	{2,5},{2,5},{2,5},
-	{2,6},{2,6},
+	{2,6},{2,6},{2,6},
+	{2,7},{2,7},
 
-	{3,0},
-	{3,1},{3,1},
-	{3,2},
+	//sociology
+	{3,1},
+	{3,2},{3,2},
 	{3,3},
-	{3,4},{3,4},{3,4},{3,4},
-	{3,5},
-	
-	{4,0},
-	{4,1},{4,1},{4,1},
+	{3,4},
+	{3,5},{3,5},{3,5},{3,5},
+	{3,6},
+
+	//Computers	
+
+	{4,1},
 	{4,2},{4,2},{4,2},
 	{4,3},{4,3},{4,3},
 	{4,4},{4,4},{4,4},
 	{4,5},{4,5},{4,5},
 	{4,6},{4,6},{4,6},
-	{4,7},{4,7},
-	{4,8},{4,8},{4,8},
+	{4,7},{4,7},{4,7},
+	{4,8},{4,8},
+	{4,9},{4,9},{4,9},
 
-	
-	{5,0},
+	//Biology
+
 	{5,1},{5,1},
 	{5,2},{5,2},{5,2},
 	{5,3},{5,3},
-	{5,4},{5,4},{5,4},
+	{5,4},
 	{5,5},{5,5},
 	{5,6},{5,6},
 	{5,7},{5,7},
-	{5,8},{5,8},
-	{5,9},{5,9},{5,9},
+	{5,8},{5,8},{5,8},
 
-	{6,0},
-	{6,1},{6,1},
-	{6,2},{6,2},{6,2},
-	{6,3},{6,3},
-	{6,4},{6,4},{6,4},
-	{6,5},{6,5},
-	{6,6},{6,6},{6,6},
+	//Physics
+
+	{6,1},
+	{6,2},{6,2},
+	{6,3},{6,3},{6,3},
+	{6,4},{6,4},
+	{6,5},{6,5},{6,5},
+	{6,6},{6,6},
 	{6,7},{6,7},{6,7},
-	{6,8},{6,8},
-	{6,9},{6,9},{6,9},
-	{6,10},{6,10},{6,10}
+	{6,8},{6,8},{6,8},
+	{6,9},{6,9},
+	{6,10},{6,10},{6,10},
+	{6,11},{6,11},{6,11},
+
+//rest
+	{7,1},{7,1},{7,1},
+	{7,2},{7,2},{7,2},
+	{7,3},{7,3},{7,3},
+	{7,4},{7,4},{7,4},
+	{7,5},{7,5},{7,5},
+	{7,6},{7,6},{7,6},
+	{7,7},{7,7},{7,7},
+	{7,8},{7,8},{7,8},
+	{7,9},{7,9},{7,9},
+	{7,10},{7,10},{7,10}
 };
 
 
-unsigned short ScienceCosts[8][15]=
+unsigned short ScienceCosts[8][13]=
 {
 	//Construction
+	0,
 	80,
 	150,
 	250,
@@ -370,26 +409,9 @@ unsigned short ScienceCosts[8][15]=
 	3500,
 	6000,
 	7500,
-	0,
-	0,
-	0,
-	//Chemistry
-	50,
-	250,
-	650,
-	1150,
-	2000,
-	4500,
-	10000,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
+
 	//Power
+	0,
 	50,
 	80,
 	250,
@@ -400,6 +422,17 @@ unsigned short ScienceCosts[8][15]=
 	4500,
 	10000,
 	0,
+	0,
+	0,
+	//Chemistry
+	0,
+	50,
+	250,
+	650,
+	1150,
+	2000,
+	4500,
+	10000,
 	0,
 	0,
 	0,
@@ -407,6 +440,7 @@ unsigned short ScienceCosts[8][15]=
 	0,
 
 	//Sociology
+	0,
 	150,
 	650,
 	1150,
@@ -419,10 +453,8 @@ unsigned short ScienceCosts[8][15]=
 	0,
 	0,
 	0,
-	0,
-	0,
-	0,
 	//Computers
+	0,
 	50,
 	150,
 	400,
@@ -435,10 +467,8 @@ unsigned short ScienceCosts[8][15]=
 	0,
 	0,
 	0,
-	0,
-	0,
-	0,
 	//Biology
+	0,
 	80,
 	400,
 	900,
@@ -451,10 +481,8 @@ unsigned short ScienceCosts[8][15]=
 	0,
 	0,
 	0,
-	0,
-	0,
-	0,
 	//Physics
+	0,
 	50,
 	150,
 	250,
@@ -467,10 +495,8 @@ unsigned short ScienceCosts[8][15]=
 	6000,
 	15000,
 	0,
-	0,
-	0,
-	0,
 	//Force Fields
+	0,
 	250,
 	650,
 	900,
@@ -483,9 +509,6 @@ unsigned short ScienceCosts[8][15]=
 	15000,
 	0,
 	0,
-	0,
-	0,
-	50000,
 };
 
 
@@ -570,115 +593,114 @@ unsigned short ScienceCosts[8][15]=
 #define T_STOCK_EXCHANGE 74
 #define T_ASTRO_UNIVERSITY 75
 #define T_CONFEDERATION 76
-#define T_IMPERIUM 77
-#define T_FEDERATION 78
-#define T_GALACTIC_UNIFICATION 79
-#define T_GALACTIC_CURRENCY_EXCHANGE 80
+#define T_IMPERIUM 76
+#define T_FEDERATION 76
+#define T_GALACTIC_UNIFICATION 76
+#define T_GALACTIC_CURRENCY_EXCHANGE 77
 
-#define T_ELECTRONIC_COMPUTER 81
-#define T_RESEARCH_LAB 82
-#define T_OPTRONIC_COMPUTER 83
-#define T_GUIDIANCE_SYSTEM 84
-#define T_NEURAL_SCANNER 85
-#define T_SCOUT_LAB 86
-#define T_SECURITY_STATIONS 87
-#define T_POSITRONIC_COMPUTER 88
-#define T_PLANETARY_SUPERCOMPUTER 89
-#define T_HOLO_SIMULATOR 90
-#define T_EMISSION_GUIDIANCE_SYSTEM 91
-#define T_RANGEMASTER 92
-#define T_CYBER_SECURITY_LINK 93
-#define T_CYBERTRONIC_COMPUTER 94
-#define T_AUTOLAB 95
-#define T_STRUCTURAL_ANALYZER 96
-#define T_ANDROID_FARMERS 97
-#define T_ANDROID_WORKERS 98
-#define T_ANDROID_SCIENTISTS 99
-#define T_VIRTUAL_REALITY_NETWORK 100
-#define T_GALACTIC_CYBERNETWORK 101
-#define T_PLEASURE_DOME 102
-#define T_MOLECULAR_COMPUTER 103
-#define T_ACHILLES_TARGETING_SYSTEM 104
+#define T_ELECTRONIC_COMPUTER 78
+#define T_RESEARCH_LAB 79
+#define T_OPTRONIC_COMPUTER 80
+#define T_GUIDIANCE_SYSTEM 81
+#define T_NEURAL_SCANNER 82
+#define T_SCOUT_LAB 83
+#define T_SECURITY_STATIONS 84
+#define T_POSITRONIC_COMPUTER 85
+#define T_PLANETARY_SUPERCOMPUTER 86
+#define T_HOLO_SIMULATOR 87
+#define T_EMISSION_GUIDIANCE_SYSTEM 88
+#define T_RANGEMASTER 89
+#define T_CYBER_SECURITY_LINK 90
+#define T_CYBERTRONIC_COMPUTER 91
+#define T_AUTOLAB 92
+#define T_STRUCTURAL_ANALYZER 93
+#define T_ANDROID_FARMERS 94
+#define T_ANDROID_WORKERS 95
+#define T_ANDROID_SCIENTISTS 96
+#define T_VIRTUAL_REALITY_NETWORK 97
+#define T_GALACTIC_CYBERNETWORK 98
+#define T_PLEASURE_DOME 99
+#define T_MOLECULAR_COMPUTER 100
+#define T_ACHILLES_TARGETING_SYSTEM 101
 
-#define T_HYDROPONIC_FARM 105
-#define T_BIOSPHERES 106
-#define T_CLONING_CENTER 107
-#define T_SOIL_ENRICHMENT 108
-#define T_DEATH_SPORES 109
-#define T_TELEPATHIC_TRAINING 110
-#define T_MICROBIOTICS 111
-#define T_TERRAFORMING 112
-#define T_SUBTERRAN_FARMS 113
-#define T_WEATHER_CONTROL_SYSTEM 114
-#define T_PSIONICS 115
-#define T_INTELLIGENCE_GROWTH 116
-#define T_BIO_TERMINATOR 117
-#define T_UNIVERSAL_ANTIDOTE 118
-#define T_BIOMORPH_FUNGI 119
-#define T_GAIA_TRANSFORMATION 120
-#define T_EVOLUTIONARY_MUTATION 121
+#define T_HYDROPONIC_FARM 102
+#define T_BIOSPHERES 103
+#define T_CLONING_CENTER 104
+#define T_SOIL_ENRICHMENT 105
+#define T_DEATH_SPORES 106
+#define T_TELEPATHIC_TRAINING 107
+#define T_MICROBIOTICS 108
+#define T_TERRAFORMING 109
+#define T_SUBTERRAN_FARMS 110
+#define T_WEATHER_CONTROL_SYSTEM 111
+#define T_PSIONICS 112
+#define T_INTELLIGENCE_GROWTH 113
+#define T_BIO_TERMINATOR 114
+#define T_UNIVERSAL_ANTIDOTE 115
+#define T_BIOMORPH_FUNGI 116
+#define T_GAIA_TRANSFORMATION 117
+#define T_EVOLUTIONARY_MUTATION 118
 
-#define T_PHYSICS 122
-#define T_FUSION_BEAM 123
-#define T_FUSION_RIFLE 124
-#define T_TACHYON_COMMUNICATION 125
-#define T_TACHYON_SCANNER 126
-#define T_BATTLE_SCANNER 127
-#define T_NEUTRON_BLASTER 128
-#define T_NEUTRON_SCANNER 129
-#define T_TRACTOR_BEAM 130
-#define T_GRAVITON_BEAM 131
-#define T_PLANETARY_GRAVITATION_GENERATION 132
-#define T_SUBSPACE_COMMUNICATION 133
-#define T_JUMP_GATE 134
-#define T_PHASOR 135
-#define T_PHASOR_RIFLE 136
-#define T_MULTI_PHASE_SHIELD 137
-#define T_PLASMA_CANNON 138
-#define T_PLASMA_RIFLE 139
-#define T_PLASMA_WEB 140
-#define T_DISRUPTOR_CANNON 141
-#define T_DIMENSION_PORTAL 142
-#define T_HYPERSPACE_COMMUNICATION 143
-#define T_SENSORS 144
-#define T_MAULER_DEVICE 145
-#define T_TIME_WARP_FACILITY 146
-#define T_STELLAR_CONVERTER 147
-#define T_STAR_GATE 148
+#define T_PHYSICS 119
+#define T_FUSION_BEAM 120
+#define T_FUSION_RIFLE 121
+#define T_TACHYON_COMMUNICATION 122
+#define T_TACHYON_SCANNER 123
+#define T_BATTLE_SCANNER 124
+#define T_NEUTRON_BLASTER 125
+#define T_NEUTRON_SCANNER 126
+#define T_TRACTOR_BEAM 127
+#define T_GRAVITON_BEAM 128
+#define T_PLANETARY_GRAVITATION_GENERATION 129
+#define T_SUBSPACE_COMMUNICATION 130
+#define T_JUMP_GATE 131
+#define T_PHASOR 132
+#define T_PHASOR_RIFLE 133
+#define T_MULTI_PHASE_SHIELD 134
+#define T_PLASMA_CANNON 135
+#define T_PLASMA_RIFLE 136
+#define T_PLASMA_WEB 137
+#define T_DISRUPTOR_CANNON 138
+#define T_DIMENSION_PORTAL 139
+#define T_HYPERSPACE_COMMUNICATION 140
+#define T_SENSORS 141
+#define T_MAULER_DEVICE 142
+#define T_TIME_WARP_FACILITY 143
+#define T_STELLAR_CONVERTER 144
+#define T_STAR_GATE 145
 
-#define T_CLASS_I_SHIELD 149
-#define T_MASS_DRIVER 150
-#define T_ECM_JAMMER 151
-#define T_ANTI_GRAV_HARNESS 152
-#define T_INERTIAL_STABILISATOR 153
-#define T_GYRO_DESTABILISATOR 154
-#define T_CLASS_III_SHIELD 155
-#define T_PLANETARY_RADIATION_SHIELD 156
-#define T_WARP_DISSIPATOR 157
-#define T_STEALTH_FIELD 158
-#define T_PERSONAL_SHIELD 159
-#define T_STEALTH_SUIT 160
-#define T_PULSAR 161
-#define T_WARP_INTERDICTOR 162
-#define T_LIGTHNING_FIELD 163
-#define T_CLASS_V_SHIELD 164
-#define T_MULTIWAVE_ECM_JAMMER 165
-#define T_GAUSS_CANNON 166
-#define T_CLOAKING_DEVICE 167
-#define T_STASIS_FIELD 168
-#define T_HARD_SHIELDS 169
-#define T_CLASS_VII_SHIELD 170
-#define T_PLANETARY_FLUX_SHIELD 171
-#define T_WIDE_AREA_JAMMER 172
-#define T_DISPLACEMENT_DEVICE 173
-#define T_SUBSPACE_TELEPORTER 174
-#define T_INERTIAL_NULLIFIER 175
-#define T_CLASS_X_SHIELD 176
-#define T_PLANETARY_BARRIER_SHIELD 177
-#define T_PHASING_CLOAK 178
+#define T_CLASS_I_SHIELD 146
+#define T_MASS_DRIVER 147
+#define T_ECM_JAMMER 148
+#define T_ANTI_GRAV_HARNESS 149
+#define T_INERTIAL_STABILISATOR 150
+#define T_GYRO_DESTABILISATOR 151
+#define T_CLASS_III_SHIELD 152
+#define T_PLANETARY_RADIATION_SHIELD 153
+#define T_WARP_DISSIPATOR 154
+#define T_STEALTH_FIELD 155
+#define T_PERSONAL_SHIELD 156
+#define T_STEALTH_SUIT 157
+#define T_PULSAR 158
+#define T_WARP_INTERDICTOR 159
+#define T_LIGTHNING_FIELD 160
+#define T_CLASS_V_SHIELD 161
+#define T_MULTIWAVE_ECM_JAMMER 162
+#define T_GAUSS_CANNON 163
+#define T_CLOAKING_DEVICE 164
+#define T_STASIS_FIELD 165
+#define T_HARD_SHIELDS 166
+#define T_CLASS_VII_SHIELD 167
+#define T_PLANETARY_FLUX_SHIELD 168
+#define T_WIDE_AREA_JAMMER 169
+#define T_DISPLACEMENT_DEVICE 170
+#define T_SUBSPACE_TELEPORTER 171
+#define T_INERTIAL_NULLIFIER 172
+#define T_CLASS_X_SHIELD 173
+#define T_PLANETARY_BARRIER_SHIELD 174
+#define T_PHASING_CLOAK 175
 
-#define T_NONE 179
-
+unsigned char SLMax;
 
 const name TName[MAX_TECH]=
 {
@@ -758,10 +780,7 @@ const name TName[MAX_TECH]=
 "ALIEN",
 "STOCK",
 "ASTRO",
-"CONFE",
-"IMPER",
-"FEDER",
-"GALAC",
+"ADVGV",
 "GALAC",
 "ELECT",
 "RESEA",

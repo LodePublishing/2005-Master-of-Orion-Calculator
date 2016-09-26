@@ -1,6 +1,6 @@
 // namen fuer produkte noch rein
 
-#include "01\data.h"
+#include "data.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
@@ -137,6 +137,38 @@ public:
 	short AvailibleFood,AvailibleFreighters,Fitness;//,Commando;
 	Ships Ship[MAX_SHIPS];
 
+	unsigned char SelectResearch(unsigned char what)  //1-24
+	{
+		unsigned char i,j,area;
+		j=0;area=0;
+		while(j<=what-SCount[area][progress[area]])		 //1,2,3
+		{
+			j+=SCount[area][progress[area]];
+			area++;
+		}
+
+		//Problem: Tolerante, Lithovoren koennen net alles erforschen... mmmh
+
+		j=what-j;
+		for(i=0;i<progress[area];i++)
+			j+=SCount[area][i];
+
+		switch(area)
+		{
+			case 0:break;
+			case 1:j+=33;break;
+			case 2:j+=55;break;
+			case 3:j+=71;break;
+			case 4:j+=81;break;
+			case 5:j+=105;break;
+			case 6:j+=122;break;
+			case 7:j+=149;break;
+		}
+		return j;
+	}
+
+
+		
 	unsigned char player::SearchNextPlanet()
 	{
 		unsigned char b;
@@ -341,9 +373,11 @@ mmmh...
 unsigned char player::CanResearch(unsigned char what)
 {
 	if(tech[what]==1) return 0;
-	if(Area[ScienceArea[what].Field][ScienceArea[what].Progress]==1) return 0; //Feld schon erforscht
-	if(ScienceArea[what].Progress>0)
-		if(Area[ScienceArea[what].Field][ScienceArea[what].Progress-1]==0) return 0; //Vorgaenger-Feld noch nicht erforscht?
+//	if(progress[ScienceArea[what].Field]>=ScienceArea[what].Progress) return 0; //Feld schon erforscht
+//	if(ScienceArea[what].Progress>0)
+//		if(progress[ScienceArea[what].Field]>=ScienceArea[what].Progress
+//		if(Area[][ScienceArea[what].Progress-1]==0) return 0; //Vorgaenger-Feld noch nicht erforscht?
+//		wenn der andere code funzt, sollte des unnoetig sein
 	switch(what)
 	{
 		case T_POLLUTION_PROCESSOR:
@@ -354,10 +388,10 @@ unsigned char player::CanResearch(unsigned char what)
 		case T_SOIL_ENRICHMENT:
 		case T_SUBTERRAN_FARMS:
 		case T_FOOD_REPLICATOR:if(picks[P_LITHOVORE]==1) return 0;break;
-		case T_CONFEDERATION:if(picks[P_FEUDALISM]==0) return 0;break;
-		case T_IMPERIUM:if(picks[P_DICTATORSHIP]==0) return 0;break;
-		case T_FEDERATION:if(picks[P_DEMOCRACY]==0) return 0;break;
-		case T_GALACTIC_UNIFICATION:if(picks[P_UNIFICATION]==0) return 0;break;
+//		case T_CONFEDERATION:if(picks[P_FEUDALISM]==0) return 0;break;
+//		case T_IMPERIUM:if(picks[P_DICTATORSHIP]==0) return 0;break;
+//		case T_FEDERATION:if(picks[P_DEMOCRACY]==0) return 0;break;
+//		case T_GALACTIC_UNIFICATION:if(picks[P_UNIFICATION]==0) return 0;break;
 		case T_HOLO_SIMULATOR:
 		case T_VIRTUAL_REALITY_NETWORK:
 		case T_PLEASURE_DOME:if(picks[P_UNIFICATION]==1) return 0;break;
@@ -365,15 +399,15 @@ unsigned char player::CanResearch(unsigned char what)
 	return 1;
 }
 
-	void player::BetweenTime()
+void player::BetweenTime()
 {
 	unsigned short i,j,k,points;
 	float gravitation,moral;
-	unsigned char temp,a;
+	unsigned char temp,a,t,s,u,t2,t3;
 
 	//100 Zuege durchlaufen lassen
 
-	for(k=0;((k<100)&&(OC<MAX_ORDERS));k++)
+	for(k=0;((k<MAX_TURNS)&&(OC<MAX_ORDERS));k++)
 	{
 			for(i=0;i<MAX_PLANETS;i++)
 				planet[i].checked=0;
@@ -618,19 +652,53 @@ unsigned char player::CanResearch(unsigned char what)
 				science+=p->Science;
 			}
 
-		if(science>ScienceCosts[ScienceArea[SQueue[SC]].Field][ScienceArea[SQueue[SC]].Progress])
+			SQueue[SC]=SQueue[SC]%SLMax;
+
+			t=ScienceList[SQueue[SC]];
+			t2=ScienceList[SQueue[SC]+1];
+			t3=ScienceList[SQueue[SC]+2];
+
+		if(science>ScienceCosts[ScienceArea[t].Field][ScienceArea[t].Progress])
 		{
 
 			science=0;//-=science[ScienceProjekt]; oder wird doch aufgespart?
-			tech[SQueue[SC]]=1;
+			tech[t]=1;
+			
+		s=SCount[ScienceArea[t].Field][ScienceArea[t].Progress];
+		u=0;
 
-			SC++;
-//			while((CanResearch(SQueue[SC])==0)&&(SC<MAX_SCIENCE)) SC++;
-			if(SC>=MAX_SCIENCE)
+			switch(s)
 			{
-				SC=0;
-				SQueue[0]=T_NONE;
+				case 1:u=0;break;
+				case 2:if(t+1==t2) u=0; else u=1;break;
+				case 3:if(
+						  (t+1==t2)
+						&&(t+2==t3)
+						)
+						u=0;
+					else
+						if(t+1==t2)
+							u=1;
+						else u=2;break;
 			}
+			
+			if(SCount[ScienceArea[t].Field][ScienceArea[t].Progress+1]>SCount[ScienceArea[t].Field][ScienceArea[t].Progress])
+			{
+				for(i=24;i>=SQueue[SC]-u;i++)
+					ScienceList[i+SCount[ScienceArea[t].Field][ScienceArea[t].Progress+1] ]=ScienceList[i+SCount[ScienceArea[t].Field][ScienceArea[t].Progress]];
+			}
+			else
+			if(SCount[ScienceArea[t].Field][ScienceArea[t].Progress+1]<SCount[ScienceArea[t].Field][ScienceArea[t].Progress])
+			{
+				for(i=SQueue[SC]-u;i<=25;i++)
+					ScienceList[i+SCount[ScienceArea[t].Field][ScienceArea[t].Progress+1]]=ScienceList[i+SCount[ScienceArea[t].Field][ScienceArea[t].Progress]];
+			}
+
+			t+=SCount[ScienceArea[t].Field][ScienceArea[t].Progress];
+
+			for(i=0;i<SCount[ScienceArea[t].Field][ScienceArea[t].Progress+1];i++)
+				ScienceList[i+SQueue[SC]-u]=t+i;
+			SLMax+=SCount[ScienceArea[t].Field][ScienceArea[t].Progress+1]-SCount[ScienceArea[t].Field][ScienceArea[t].Progress];
 		}
 			
 			for(i=0;i<MAX_PLANETS;i++)
@@ -791,7 +859,7 @@ points=0;
 		{
 			Fitness+=planet[i].Population*(planet[i].Settlement==2)*10;
 //			for(j=0;j<MAX_BUILDINGS;j++)
-				Fitness+=planet[i].Building[j]==1;
+//				Fitness+=planet[i].Building[j]==1;
 //			Fitness+=bcs;
 		}
 //		for(i=0;i<MAX_ORDERS;i++)
@@ -1057,15 +1125,17 @@ void player::RestartGalaxy() // aufruf pro durchgang ~~~~~~~~
 		h->Settlement=2;
 		h->bought=0;
 		h->Population=8;
-		h->Farmers=3;
-		h->Workers=3;
-		h->Scientists=2;
+		h->Farmers=8;
+		h->Workers=0;
+		h->Scientists=0;
 		bcs=50;
 //		if(Game_Avg_Tech)
-			{
+/*			{
 				tech[T_NUCLEAR_FISSION]=1;
-				Area[ScienceArea[T_NUCLEAR_FISSION].Field][ScienceArea[T_NUCLEAR_FISSION].Progress]=1;
 				tech[T_COLD_FUSION]=1;
+
+				progress[ScienceArea[T_NUCLEAR_FISSION].Field]=ScienceArea[T_NUCLEAR_FISSION].Progress;
+
 				Area[ScienceArea[T_COLD_FUSION].Field][ScienceArea[T_COLD_FUSION].Progress]=1;
 				tech[T_CHEMISTRY]=1;
 				Area[ScienceArea[T_CHEMISTRY].Field][ScienceArea[T_CHEMISTRY].Progress]=1;
@@ -1074,7 +1144,7 @@ void player::RestartGalaxy() // aufruf pro durchgang ~~~~~~~~
 				tech[T_PHYSICS]=1;
 				Area[ScienceArea[T_PHYSICS].Field][ScienceArea[T_PHYSICS].Progress]=1;
 				//Schiffe!
-			}
+			}*/
 			// kein Advanced Tech... bringt nix
 //				if(picks[P_OMNISCIENT])
 //					for(j=0;j<MAX_SYSTEMS];j++)
@@ -2206,7 +2276,7 @@ void player::TryPick(unsigned short t)
 
 void player::Create()
 {
-	unsigned short i,j;
+	unsigned short i,j,k;
 
 	pl=0;mi=0;
 
@@ -2220,19 +2290,33 @@ void player::Create()
 		for(i=0;i<MAX_SCIENCE;i++)
 			SQueue[i]=0;
 		for(i=0;i<8;i++)
-			for(j=0;j<15;j++)
-				Area[i][j]=0;
-//		for(i=0;i<MAX_SCIENCE;i++)
-//		{
-//			t=rand()%MAX_TECH;
-//			while(CanResearch(t)==0) t=rand()%MAX_TECH;
-//			SQueue[i]=t;
-//			tech[t]=1;
-//			Area[ScienceArea[t].Field][ScienceArea[t].Progress]=1;
-//		}
+				progress[i]=0;
 
+		for(i=0;i<MAX_SCIENCE;i++)
+			SQueue[i]=rand()%100;
+/*		{
+			t=SelectResearch(rand()%25);
+			while(CanResearch(t)==0) t=SelectResearch(rand()%25);
+			SQueue[i]=t;
+			tech[t]=1;
+			Area[ScienceArea[t].Field][ScienceArea[t].Progress]=1;
+		}*/
 
+		
+		ScienceList[0]=0;
+		ScienceList[1]=1;
+		ScienceList[2]=2;
+		ScienceList[3]=33;
+		ScienceList[4]=55;
+		ScienceList[5]=71;
+		ScienceList[6]=78;
+		ScienceList[7]=102;
+		ScienceList[8]=103;
+		ScienceList[9]=119;
+		ScienceList[10]=146;
 
+		SLMax=11;
+/*
 
 
 SQueue[0]=T_ELECTRONIC_COMPUTER;
@@ -2240,7 +2324,8 @@ SQueue[1]=T_RESEARCH_LAB;
 SQueue[2]=T_REINFORCED_HULL;
 SQueue[3]=T_AUTOMATED_FACTORIES;
 SQueue[4]=T_BIOSPHERES;
-SQueue[5]=T_CLONING_CENTER;
+
+  SQueue[5]=T_CLONING_CENTER;
 SQueue[6]=T_NEURAL_SCANNER;
 SQueue[7]=T_PLANETARY_SUPERCOMPUTER;
 SQueue[8]=T_CHEMISTRY;
@@ -2256,10 +2341,7 @@ SQueue[17]=T_ATMOSPHERE_RENEWER;
 SQueue[18]=T_ZORTIUM_ARMOR;
 SQueue[19]=T_NUCLEAR_FISSION;
 SQueue[20]=T_COLD_FUSION;
-SQueue[21]=T_AUGMENTED_ENGINES;
-
-		for(i=0;i<MAX_TECH;i++)
-			tech[i]=0;
+SQueue[21]=T_AUGMENTED_ENGINES;*/
 	}
 
 	void player::Mutate()
@@ -2355,10 +2437,16 @@ unsigned char Planets::CanBuild(unsigned char item)
 		case B_CORE_WASTE_DUMP:if(P.tech[T_CORE_WASTE_DUMP]==0) return 0;break;
 		case B_STAR_FORTRESS:if(P.tech[T_STAR_FORTRESS]==0) return 0;break;
 		case B_ARTEMIS_SYSTEM_NETWORK:if(P.tech[T_ARTEMIS_SYSTEM_NETWORK]==0) return 0;break; // nur eins im system
-		case B_COLONY_SHIP:if(P.tech[T_COLD_FUSION]==0) return 0;break;
-//		case B_FREIGHTERS:if(P.tech[T_FREIGHTERS]==0) return 0;break; ?
-//		case B_OUTPOST_SHIP:if(P.tech[T_OUTPOST_SHIP]==0) return 0;break; ?
-//		case B_TRANSPORT:if(P.tech[T_TRANSPORT]==0) return 0;break; ?
+
+		case B_SHIP_1:
+		case B_SHIP_2:
+		case B_SHIP_3:
+		case B_SHIP_4:
+		case B_SHIP_5:
+		case B_OUTPOST_SHIP:
+		case B_TRANSPORT:
+		case B_COLONY_SHIP:if((P.tech[T_COLD_FUSION]==0)||(P.tech[T_CHEMISTRY]==0)) return 0;break;
+		case B_FREIGHTERS:if(P.tech[T_NUCLEAR_FISSION]==0) return 0;break;
 		case B_FOOD_REPLICATOR:if(P.tech[T_FOOD_REPLICATOR]==0) return 0;break;
 		case B_POLLUTION_PROCESSOR:if(P.tech[T_POLLUTION_PROCESSOR]==0) return 0;break;
 		case B_ATMOSPHERE_RENEWER:if(P.tech[T_ATMOSPHERE_RENEWER]==0) return 0;break;
@@ -2516,8 +2604,6 @@ while(kbhit()==0)
 	for(i=0;i<MAX_PICKS;i++)
 		if(S.picks[i]==1)
 			out_file<<PName[i].Name<<"\n";
-
-
 
 	out_file.close();
 };
